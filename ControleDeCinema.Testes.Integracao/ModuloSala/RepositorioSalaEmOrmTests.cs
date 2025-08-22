@@ -1,10 +1,10 @@
 ﻿namespace ControleDeCinema.Testes.Integracao.ModuloSala
 {
     [TestClass]
-    public sealed class Test1
+    public sealed class RepositorioSalaEmOrmTests
     {
         [TestMethod]
-        public void RepositorioSalaEmOrmTests()
+        public void TestMethod1()
         {
         }
     }
