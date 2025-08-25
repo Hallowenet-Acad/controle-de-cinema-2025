@@ -52,4 +52,37 @@ public sealed class RepositorioSalaEmOrmTests
 
         Assert.AreEqual(sala, registroSelecionado);
     }
+
+    [TestMethod]
+    public void Deve_Selecionar_Registros_Corretamente()
+    {
+        // Arrange
+        var sala = new Sala(3, 60);
+        var sala2 = new Sala(1, 70);
+        var sala3 = new Sala(2, 58);
+
+        repositorioSala.Cadastrar(sala);
+        repositorioSala.Cadastrar(sala2);
+        repositorioSala.Cadastrar(sala3);
+
+        dbContext.SaveChanges();
+
+        List<Sala> salasEsperadas = [sala, sala2, sala3];
+
+        var salasEsperadasOrdenadas = salasEsperadas
+            .OrderBy(s => s.Numero)
+            .ToList();
+
+        // Act
+        var salasRecebidas = repositorioSala
+            .SelecionarRegistros();
+
+        var salasRecebidasOrdenadas = salasRecebidas
+            .OrderBy(s => s.Numero)
+            .ToList();
+
+        // Assert
+        CollectionAssert.AreEqual(salasEsperadasOrdenadas, salasRecebidas);
+    }
+
 }
