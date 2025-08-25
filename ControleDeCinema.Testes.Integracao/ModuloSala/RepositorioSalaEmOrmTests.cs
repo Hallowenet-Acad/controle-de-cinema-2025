@@ -104,4 +104,24 @@ public sealed class RepositorioSalaEmOrmTests
         Assert.AreEqual(sala, registroSelecionado);
 
     }
+    [TestMethod]
+    public void Deve_Excluir_Registros_Corretamente()
+    {
+        // Arrange
+        var sala = new Sala(3, 60);
+        repositorioSala.Cadastrar(sala);
+        dbContext.SaveChanges();
+
+        // Act
+        var conseguiuExcluir = repositorioSala.Excluir(sala.Id);
+        dbContext.SaveChanges();
+
+        // Assert 
+        var registroSelecionado = repositorioSala.SelecionarRegistroPorId(sala.Id);
+
+        Debug.WriteLine(registroSelecionado);
+
+        Assert.IsTrue(conseguiuExcluir);
+        Assert.IsNull(registroSelecionado);
+    }
 }
