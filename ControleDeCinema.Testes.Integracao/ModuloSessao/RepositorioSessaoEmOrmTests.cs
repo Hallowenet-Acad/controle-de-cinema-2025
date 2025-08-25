@@ -41,7 +41,13 @@ public sealed class RepositorioSessaoEmOrmTests
     [TestMethod]
     public void Deve_Cadastrar_Registro_Corretamente()
     {
-        var sessao = new Sessao(DateTime.UtcNow, 50, new Filme("Interestelar", 3, true, new GeneroFilme("Ficção Científica")), new Sala(1, 50));
+        var sessao = new Sessao(DateTime.UtcNow, 
+            50, 
+            new Filme("Interestelar", 
+                3, 
+                true, 
+                new GeneroFilme("Ficção Científica")), 
+            new Sala(1, 50));
         
         repositorioSessao.Cadastrar(sessao);
 
@@ -50,5 +56,40 @@ public sealed class RepositorioSessaoEmOrmTests
         var registroSelecionado = repositorioSessao.SelecionarRegistroPorId(sessao.Id);
 
         Assert.AreEqual(sessao, registroSelecionado);
+    }
+
+    [TestMethod]
+    public void Deve_Selecionar_Registros_Corretamente()
+    {
+        // Arrange
+        var sessao = new Sessao(DateTime.UtcNow,
+            10,
+            new Filme("Duna",
+            2,
+            true,
+            new GeneroFilme("Ficção")),
+            new Sala(3, 34));
+
+        repositorioSessao.Cadastrar(sessao);
+        
+
+        dbContext.SaveChanges();
+
+        List<Sessao> sessoesEsperadas = [sessao];
+
+        var sessoesEsperadasOrdenadas = sessoesEsperadas
+            .OrderBy(s => s.Encerrada)
+            .ToList();
+
+        // Act
+        var sessoesRecebidas = repositorioSessao
+            .SelecionarRegistros();
+
+        var sessoesRecebidasOrdenadas = sessoesRecebidas
+            .OrderBy(s => s.Encerrada)
+            .ToList();
+
+        // Assert
+        CollectionAssert.AreEqual(sessoesEsperadasOrdenadas, sessoesRecebidas);
     }
 }
