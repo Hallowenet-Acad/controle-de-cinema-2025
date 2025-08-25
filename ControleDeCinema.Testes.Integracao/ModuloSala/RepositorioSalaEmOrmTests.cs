@@ -84,5 +84,24 @@ public sealed class RepositorioSalaEmOrmTests
         // Assert
         CollectionAssert.AreEqual(salasEsperadasOrdenadas, salasRecebidas);
     }
+    [TestMethod]
+    public void Deve_Editar_Registros_Corretamente()
+    {
+        // Arrange
+        var sala = new Sala(3, 60);
+        repositorioSala.Cadastrar(sala);
+        dbContext.SaveChanges();
 
+        var salaEditada = new Sala(4, 30);
+        // Act
+        var conseguiuEditar = repositorioSala.Editar(sala.Id, salaEditada);
+        dbContext.SaveChanges();
+
+        // Assert
+        var registroSelecionado = repositorioSala.SelecionarRegistroPorId(sala.Id);
+
+        Assert.IsTrue(conseguiuEditar);
+        Assert.AreEqual(sala, registroSelecionado);
+
+    }
 }
