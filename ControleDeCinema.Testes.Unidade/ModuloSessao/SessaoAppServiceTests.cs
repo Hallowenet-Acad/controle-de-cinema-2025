@@ -58,4 +58,29 @@ public sealed class SessaoAppServiceTests
         Assert.IsNotNull(resultado);
         Assert.IsTrue(resultado.IsSuccess);
     }
+
+    [TestMethod]
+    public void Deve_Retornar_Falha_Caso_Exceda_Limite()
+    {
+        // Arrange
+        var genero = new GeneroFilme("Ficção Cientifica");
+        var filme = new Filme("Interestelar", 2, true, genero);
+        var sala = new Sala(2, 40);
+        var sessao = new Sessao(DateTime.UtcNow, 50, filme, sala);
+
+        repositorioSessaoMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sessao>() { });
+
+        // Act
+        var resultado = sessaoAppService!.Cadastrar(sessao);
+
+        // Assert
+        repositorioSessaoMock?.Verify(r => r.Cadastrar(sessao), Times.Never);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Never);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsFalse(resultado.IsSuccess);
+    }
+
 }
