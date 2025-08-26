@@ -83,4 +83,29 @@ public sealed class SessaoAppServiceTests
         Assert.IsFalse(resultado.IsSuccess);
     }
 
+    [TestMethod]
+    public void Deve_Retornar_Erro_Com_Sessoes_Em_Horarios_Iguais()
+    {
+        var genero = new GeneroFilme("Ficção Cientifica");
+        var filme = new Filme("Interestelar", 2, true, genero);
+        var sala = new Sala(2, 100);
+        var sessao = new Sessao(DateTime.Parse("04/09/2025 11:00:00"), 50, filme, sala);
+
+        var filme2 = new Filme("Silksong", 100, false, genero);
+        var sessao2 = new Sessao(DateTime.Parse("04/09/2025 11:00:00"), 100, filme2, sala);
+
+        repositorioSessaoMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sessao>() { sessao });
+
+        var resultado = sessaoAppService!.Cadastrar(sessao2);
+
+        repositorioSessaoMock?.Verify(r => r.Cadastrar(sessao2), Times.Never);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Never);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsFalse(resultado.IsSuccess);
+    }
+
+    
 }
