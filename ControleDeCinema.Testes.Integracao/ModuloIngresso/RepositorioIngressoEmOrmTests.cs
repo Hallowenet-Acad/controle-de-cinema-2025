@@ -38,20 +38,19 @@ public sealed class RepositorioIngressoEmOrmTests
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
     }
-    [TestMethod]
-    public void Deve_Cadastrar_Registro_Corretamente()
-    {
-        var ingresso = new Ingresso(50,
-            true,
-            new Sessao(DateTime.UtcNow,
-            20,
-            new Filme("FilmeTeste",
-            2,
-            true,
-            new GeneroFilme("Comédia")),
-            new Sala(2, 40)));
+    //[TestMethod]
+    //public void Deve_Cadastrar_Registro_Corretamente()
+    //{
+    //    var ingresso = new Ingresso(50,
+    //        true,
+    //        new Sessao(DateTime.UtcNow,
+    //        20,
+    //        new Filme("FilmeTeste",
+    //        2,
+    //        true,
+    //        new GeneroFilme("Comédia")),
+    //        new Sala(2, 40)));
 
-        repositorioIngresso.
-    }
+    //}
 
 }

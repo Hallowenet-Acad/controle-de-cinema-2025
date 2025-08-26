@@ -43,9 +43,11 @@ public sealed class RepositorioSessaoEmOrmTests
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
         repositorioSala = new RepositorioSalaEmOrm(dbContext);
         repositorioFilme = new RepositorioFilmeEmOrm(dbContext);
+        repositorioGeneroFilme = new RepositorioGeneroFilmeEmOrm(dbContext);
 
         BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
         BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGeneroFilme.Cadastrar);
 
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
@@ -55,7 +57,12 @@ public sealed class RepositorioSessaoEmOrmTests
     public void Deve_Cadastrar_Registro_Corretamente()
     {
         // Arrange
-        var filme = Builder<Filme>.CreateNew().Persist();
+        var generoFilme = Builder<GeneroFilme>.CreateNew()
+            .With(g => g.Descricao = "Ação")
+            .Persist();
+        var filme = Builder<Filme>.CreateNew()
+            .With(f => f.Genero = generoFilme)
+            .Persist();
         var sala = Builder<Sala>.CreateNew().Persist();
         
         var sessao = new Sessao(DateTime.UtcNow, 50, filme, sala);
@@ -73,7 +80,12 @@ public sealed class RepositorioSessaoEmOrmTests
     public void Deve_Selecionar_Registros_Corretamente()
     {
         // Arrange
-        var filme = Builder<Filme>.CreateNew().Persist();
+        var generoFilme = Builder<GeneroFilme>.CreateNew()
+            .With(g => g.Descricao = "Ação")
+            .Persist();
+        var filme = Builder<Filme>.CreateNew()
+            .With(f => f.Genero = generoFilme)
+            .Persist();
         var sala = Builder<Sala>.CreateNew().Persist();
 
         var sessao = new Sessao(DateTime.UtcNow, 30, filme, sala);
@@ -107,7 +119,12 @@ public sealed class RepositorioSessaoEmOrmTests
     [TestMethod]
     public void Deve_Editar_Registros_Corretamente()
     {
-        var filme = Builder<Filme>.CreateNew().Persist();
+        var generoFilme = Builder<GeneroFilme>.CreateNew()
+            .With(g => g.Descricao = "Ação")
+            .Persist();
+        var filme = Builder<Filme>.CreateNew()
+            .With(f => f.Genero = generoFilme)
+            .Persist();
         var sala = Builder<Sala>.CreateNew().Persist();
 
         //Arrange
@@ -131,14 +148,17 @@ public sealed class RepositorioSessaoEmOrmTests
     [TestMethod]
     public void Deve_Excluir_Registros_Corretamente()
     {
+        var generoFilme = Builder<GeneroFilme>.CreateNew()
+            .With(g => g.Descricao = "Ação")
+            .Persist();
+        var filme = Builder<Filme>.CreateNew()
+            .With(f => f.Genero = generoFilme)
+            .Persist();
+        var sala = Builder<Sala>.CreateNew().Persist();
+
         // Arrange
-        var sessao = new Sessao(DateTime.UtcNow,
-            8,
-            new Filme("Filme5",
-            1,
-            true,
-            new GeneroFilme("Terror")),
-            new Sala(2, 40));
+        var sessao = new Sessao(DateTime.UtcNow, 37, filme, sala);
+
         repositorioSessao.Cadastrar(sessao);
         dbContext.SaveChanges();
 
