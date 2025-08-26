@@ -107,24 +107,17 @@ public sealed class RepositorioSessaoEmOrmTests
     [TestMethod]
     public void Deve_Editar_Registros_Corretamente()
     {
+        var filme = Builder<Filme>.CreateNew().Persist();
+        var sala = Builder<Sala>.CreateNew().Persist();
+
         //Arrange
-        var sessao = new Sessao(DateTime.UtcNow,
-            23,
-            new Filme("Filme3",
-            1,
-            true,
-            new GeneroFilme("Ação")),
-            new Sala(2, 40));
+        var sessao = new Sessao(DateTime.UtcNow, 43, filme, sala);
         repositorioSessao.Cadastrar(sessao);
+
         dbContext.SaveChanges();
 
-        var sessaoEditada = new Sessao(DateTime.UtcNow,
-            46,
-            new Filme("Filme4",
-            4,
-            true,
-            new GeneroFilme("Suspense")),
-            new Sala(2, 40));
+        var sessaoEditada = new Sessao(DateTime.UtcNow, 29, filme, sala);
+
         //Act
         var conseguiuEditar = repositorioSessao.Editar(sessao.Id, sessaoEditada);
         dbContext.SaveChanges();
