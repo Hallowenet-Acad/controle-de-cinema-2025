@@ -136,4 +136,32 @@ public sealed class SessaoAppServiceTests
         Assert.IsNotNull(resultado);
         Assert.IsTrue(resultado.IsSuccess);
     }
+
+    [TestMethod]
+    public void Deve_Falhar_AoEditar_Ingresso_Exceder_Limite_Sala()
+    {
+        var genero = new GeneroFilme("Ficção Científica");
+        var filme = new Filme("Interestelar", 2, true, genero);
+        var sala = new Sala(1, 60);
+        var sessao = new Sessao(DateTime.UtcNow, 50, filme, sala);
+
+        var filme2 = new Filme("Silksong", 100, false, genero);
+        var sessaoEditada = new Sessao(DateTime.Parse("04/09/2025 11:00:00"), 100, filme2, sala);
+
+        repositorioSessaoMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sessao>() { sessao });
+
+        repositorioSessaoMock?
+            .Setup(r => r.Editar(sessao.Id, sessaoEditada))
+            .Returns(false);
+
+        var resultado = sessaoAppService!.Editar(sessao.Id, sessaoEditada);
+
+        repositorioSessaoMock?.Verify(r => r.Editar(sessao.Id, sessaoEditada), Times.Never);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Never);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsFalse(resultado.IsSuccess);
+    }
 }
