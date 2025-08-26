@@ -3,7 +3,11 @@ using ControleDeCinema.Dominio.ModuloGeneroFilme;
 using ControleDeCinema.Dominio.ModuloSala;
 using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
+using ControleDeCinema.Infraestrutura.Orm.ModuloFilme;
+using ControleDeCinema.Infraestrutura.Orm.ModuloGeneroFilme;
+using ControleDeCinema.Infraestrutura.Orm.ModuloSala;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSessao;
+using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
@@ -16,6 +20,9 @@ public sealed class RepositorioSessaoEmOrmTests
 {
     private ControleDeCinemaDbContext dbContext;
     private RepositorioSessaoEmOrm repositorioSessao;
+    private RepositorioGeneroFilmeEmOrm repositorioGeneroFilme;
+    private RepositorioSalaEmOrm repositorioSala;
+    private RepositorioFilmeEmOrm repositorioFilme;
 
     [TestInitialize]
     public void ConfigurarTestes()
@@ -34,6 +41,11 @@ public sealed class RepositorioSessaoEmOrmTests
 
         dbContext = new ControleDeCinemaDbContext(options);
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
+        repositorioSala = new RepositorioSalaEmOrm(dbContext);
+        repositorioFilme = new RepositorioFilmeEmOrm(dbContext);
+
+        BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
 
         dbContext.Database.EnsureDeleted();
         dbContext.Database.EnsureCreated();
@@ -42,18 +54,17 @@ public sealed class RepositorioSessaoEmOrmTests
     [TestMethod]
     public void Deve_Cadastrar_Registro_Corretamente()
     {
-        var sessao = new Sessao(DateTime.UtcNow, 
-            50, 
-            new Filme("Interestelar", 
-                3, 
-                true, 
-                new GeneroFilme("Ficção Científica")), 
-            new Sala(1, 50));
+        // Arrange
+        var filme = Builder<Filme>.CreateNew().Persist();
+        var sala = Builder<Sala>.CreateNew().Persist();
         
+        var sessao = new Sessao(DateTime.UtcNow, 50, filme, sala);
+        
+        //Act
         repositorioSessao.Cadastrar(sessao);
-
         dbContext.SaveChanges();
 
+        //Assert
         var registroSelecionado = repositorioSessao.SelecionarRegistroPorId(sessao.Id);
 
         Assert.AreEqual(sessao, registroSelecionado);
