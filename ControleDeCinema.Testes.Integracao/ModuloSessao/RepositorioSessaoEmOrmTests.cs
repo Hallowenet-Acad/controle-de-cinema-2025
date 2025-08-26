@@ -92,4 +92,36 @@ public sealed class RepositorioSessaoEmOrmTests
         // Assert
         CollectionAssert.AreEqual(sessoesEsperadasOrdenadas, sessoesRecebidas);
     }
+
+    [TestMethod]
+    public void Deve_Editar_Registros_Corretamente()
+    {
+        //Arrange
+        var sessao = new Sessao(DateTime.UtcNow,
+            23,
+            new Filme("Filme3",
+            1,
+            true,
+            new GeneroFilme("Ação")),
+            new Sala(2, 40));
+        repositorioSessao.Cadastrar(sessao);
+        dbContext.SaveChanges();
+
+        var sessaoEditada = new Sessao(DateTime.UtcNow,
+            46,
+            new Filme("Filme4",
+            4,
+            true,
+            new GeneroFilme("Suspense")),
+            new Sala(2, 40));
+        //Act
+        var conseguiuEditar = repositorioSessao.Editar(sessao.Id, sessaoEditada);
+        dbContext.SaveChanges();
+
+        //Assert
+        var registroSelecionado = repositorioSessao.SelecionarRegistroPorId(sessao.Id);
+
+        Assert.IsTrue(conseguiuEditar);
+        Assert.AreEqual(sessao, registroSelecionado);
+    }
 }
