@@ -1,11 +1,12 @@
-﻿using ControleDeCinema.Dominio.ModuloSessao;
-using ControleDeCinema.Dominio.ModuloFilme;
+﻿using ControleDeCinema.Dominio.ModuloFilme;
 using ControleDeCinema.Dominio.ModuloGeneroFilme;
 using ControleDeCinema.Dominio.ModuloSala;
+using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSessao;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace ControleDeCinema.Testes.Integracao.ModuloSessao;
 
@@ -57,7 +58,6 @@ public sealed class RepositorioSessaoEmOrmTests
 
         Assert.AreEqual(sessao, registroSelecionado);
     }
-
     [TestMethod]
     public void Deve_Selecionar_Registros_Corretamente()
     {
@@ -92,7 +92,6 @@ public sealed class RepositorioSessaoEmOrmTests
         // Assert
         CollectionAssert.AreEqual(sessoesEsperadasOrdenadas, sessoesRecebidas);
     }
-
     [TestMethod]
     public void Deve_Editar_Registros_Corretamente()
     {
@@ -123,5 +122,31 @@ public sealed class RepositorioSessaoEmOrmTests
 
         Assert.IsTrue(conseguiuEditar);
         Assert.AreEqual(sessao, registroSelecionado);
+    }
+    [TestMethod]
+    public void Deve_Excluir_Registros_Corretamente()
+    {
+        // Arrange
+        var sessao = new Sessao(DateTime.UtcNow,
+            8,
+            new Filme("Filme5",
+            1,
+            true,
+            new GeneroFilme("Terror")),
+            new Sala(2, 40));
+        repositorioSessao.Cadastrar(sessao);
+        dbContext.SaveChanges();
+
+        // Act
+        var conseguiuExcluir = repositorioSessao.Excluir(sessao.Id);
+        dbContext.SaveChanges();
+
+        // Assert 
+        var registroSelecionado = repositorioSessao.SelecionarRegistroPorId(sessao.Id);
+
+        Debug.WriteLine(registroSelecionado);
+
+        Assert.IsTrue(conseguiuExcluir);
+        Assert.IsNull(registroSelecionado);
     }
 }
