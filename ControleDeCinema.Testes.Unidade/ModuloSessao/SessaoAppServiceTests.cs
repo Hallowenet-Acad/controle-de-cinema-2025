@@ -198,4 +198,32 @@ public sealed class SessaoAppServiceTests
         Assert.IsNotNull(resultado);
         Assert.IsFalse(resultado.IsSuccess);
     }
+
+    [TestMethod]
+    public void Deve_Excluir_Sessao_Com_Sucesso()
+    {
+        // Arrange
+        var genero = new GeneroFilme("Ficção Científica");
+        var filme = new Filme("Interestelar", 2, true, genero);
+        var sala = new Sala(1, 100);
+        var sessao = new Sessao(DateTime.Parse("11/11/2025 11:00:00"), 50, filme, sala);
+
+        repositorioSessaoMock?
+             .Setup(r => r.SelecionarRegistros())
+             .Returns(new List<Sessao>() { sessao });
+
+        repositorioSessaoMock?
+            .Setup(r => r.Excluir(sessao.Id))
+            .Returns(true);
+
+        // Act
+        var resultado = sessaoAppService!.Excluir(sessao.Id);
+
+        // Assert
+        repositorioSessaoMock?.Verify(r => r.Excluir(sessao.Id), Times.Once);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Once);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsTrue(resultado.IsSuccess);
+    }
 }
