@@ -73,23 +73,24 @@ public sealed class RepositorioSessaoEmOrmTests
     public void Deve_Selecionar_Registros_Corretamente()
     {
         // Arrange
-        var sessao = new Sessao(DateTime.UtcNow,
-            10,
-            new Filme("Duna",
-            2,
-            true,
-            new GeneroFilme("Ficção")),
-            new Sala(3, 34));
+        var filme = Builder<Filme>.CreateNew().Persist();
+        var sala = Builder<Sala>.CreateNew().Persist();
+
+        var sessao = new Sessao(DateTime.UtcNow, 30, filme, sala);
+        var sessao2 = new Sessao(DateTime.UtcNow, 10, filme, sala);
+        var sessao3 = new Sessao(DateTime.UtcNow, 55, filme, sala);
+
 
         repositorioSessao.Cadastrar(sessao);
-        
+        repositorioSessao.Cadastrar(sessao2);
+        repositorioSessao.Cadastrar(sessao3);
 
         dbContext.SaveChanges();
 
-        List<Sessao> sessoesEsperadas = [sessao];
+        List<Sessao> sessoesEsperadas = [sessao, sessao2, sessao3];
 
         var sessoesEsperadasOrdenadas = sessoesEsperadas
-            .OrderBy(s => s.Encerrada)
+            .OrderBy(s => s.NumeroMaximoIngressos)
             .ToList();
 
         // Act
@@ -97,7 +98,7 @@ public sealed class RepositorioSessaoEmOrmTests
             .SelecionarRegistros();
 
         var sessoesRecebidasOrdenadas = sessoesRecebidas
-            .OrderBy(s => s.Encerrada)
+            .OrderBy(s => s.NumeroMaximoIngressos)
             .ToList();
 
         // Assert
