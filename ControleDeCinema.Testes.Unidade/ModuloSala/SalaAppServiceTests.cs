@@ -68,4 +68,24 @@ public class SalaAppServiceTests
         Assert.IsNotNull(resultado);
         Assert.IsTrue(resultado.IsFailed);
     }
+
+    [TestMethod]
+    public void Deve_Editar_Registro_Corretamente()
+    {
+        var sala = new Sala(1, 50);
+
+        var salaEditada = new Sala(2, 100);
+
+        repositorioSalaMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sala>() { sala });
+
+        var resultado = salaAppService!.Editar(sala.Id, salaEditada);
+
+        repositorioSalaMock?.Verify(r => r.Editar(sala.Id, salaEditada), Times.Once);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Once);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsTrue(resultado.IsSuccess);
+    }
 }
