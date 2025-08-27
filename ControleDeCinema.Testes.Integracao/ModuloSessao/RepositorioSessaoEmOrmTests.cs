@@ -58,14 +58,10 @@ public sealed class RepositorioSessaoEmOrmTests : TestFixture
         var sessao2 = new Sessao(DateTime.UtcNow, 10, filme, sala);
         var sessao3 = new Sessao(DateTime.UtcNow, 55, filme, sala);
 
-
-        repositorioSessao?.Cadastrar(sessao);
-        repositorioSessao?.Cadastrar(sessao2);
-        repositorioSessao?.Cadastrar(sessao3);
-
-        dbContext?.SaveChanges();
-
         List<Sessao> sessoesEsperadas = [sessao, sessao2, sessao3];
+
+        repositorioSessao?.CadastrarEntidades(sessoesEsperadas);
+        dbContext?.SaveChanges();
 
         var sessoesEsperadasOrdenadas = sessoesEsperadas
             .OrderBy(s => s.NumeroMaximoIngressos)
@@ -73,7 +69,9 @@ public sealed class RepositorioSessaoEmOrmTests : TestFixture
 
         // Act
         var sessoesRecebidas = repositorioSessao?
-            .SelecionarRegistros();
+            .SelecionarRegistros()
+            .OrderBy(s => s.NumeroMaximoIngressos)
+            .ToList();
 
         var sessoesRecebidasOrdenadas = sessoesRecebidas?
             .OrderBy(s => s.NumeroMaximoIngressos)

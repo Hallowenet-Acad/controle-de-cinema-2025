@@ -38,21 +38,20 @@ public sealed class RepositorioSalaEmOrmTests : TestFixture
         var sala2 = new Sala(1, 70);
         var sala3 = new Sala(2, 58);
 
-        repositorioSala.Cadastrar(sala);
-        repositorioSala.Cadastrar(sala2);
-        repositorioSala.Cadastrar(sala3);
-
-        dbContext.SaveChanges();
-
         List<Sala> salasEsperadas = [sala, sala2, sala3];
+
+        repositorioSala?.CadastrarEntidades(salasEsperadas);
+        dbContext?.SaveChanges();
 
         var salasEsperadasOrdenadas = salasEsperadas
             .OrderBy(s => s.Numero)
             .ToList();
 
         // Act
-        var salasRecebidas = repositorioSala
-            .SelecionarRegistros();
+        var salasRecebidas = repositorioSala?
+            .SelecionarRegistros()
+            .OrderBy(s => s.Numero)
+            .ToList();
 
         var salasRecebidasOrdenadas = salasRecebidas
             .OrderBy(s => s.Numero)
