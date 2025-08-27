@@ -48,4 +48,24 @@ public class SalaAppServiceTests
         repositorioSalaMock?.Verify(r => r.Cadastrar(sala), Times.Once);
         unitOfWorkMock?.Verify(u => u.Commit(), Times.Once);
     }
+
+    [TestMethod]
+    public void Deve_Falhar_Se_Numero_Ja_Estiver_Registrado()
+    {
+        var sala = new Sala(1, 50);
+
+        var sala2 = new Sala(1, 50);
+
+        repositorioSalaMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sala>() { sala2 });
+
+        var resultado = salaAppService!.Cadastrar(sala);
+
+        repositorioSalaMock?.Verify(r => r.Cadastrar(sala), Times.Never);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Never);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsTrue(resultado.IsFailed);
+    }
 }
