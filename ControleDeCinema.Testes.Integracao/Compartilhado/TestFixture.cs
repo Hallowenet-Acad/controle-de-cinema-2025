@@ -1,4 +1,7 @@
-﻿using ControleDeCinema.Dominio.ModuloGeneroFilme;
+﻿using ControleDeCinema.Dominio.ModuloFilme;
+using ControleDeCinema.Dominio.ModuloGeneroFilme;
+using ControleDeCinema.Dominio.ModuloSala;
+using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
 using ControleDeCinema.Infraestrutura.Orm.ModuloFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloGeneroFilme;
@@ -60,8 +63,18 @@ public abstract class TestFixture
         repositorioSala = new RepositorioSalaEmOrm(dbContext);
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
 
-        BuilderSetup.SetCreatePersistenceMethod<List<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
-    
+        BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Filme>>(repositorioFilme.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<IList<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Sala>>(repositorioSala.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Sessao>>(repositorioSessao.CadastrarEntidades);
+
     }
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
     {
