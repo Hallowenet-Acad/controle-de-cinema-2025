@@ -7,6 +7,7 @@ using ControleDeCinema.Infraestrutura.Orm.ModuloFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloGeneroFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSala;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSessao;
+using ControleDeCinema.Testes.Integracao.Compartilhado;
 using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,43 +17,8 @@ namespace ControleDeCinema.Testes.Integracao.ModuloSessao;
 
 [TestClass]
 [TestCategory("Testes de Integração de Sessão")]
-public sealed class RepositorioSessaoEmOrmTests
+public sealed class RepositorioSessaoEmOrmTests : TestFixture
 {
-    private ControleDeCinemaDbContext dbContext;
-    private RepositorioSessaoEmOrm repositorioSessao;
-    private RepositorioGeneroFilmeEmOrm repositorioGeneroFilme;
-    private RepositorioSalaEmOrm repositorioSala;
-    private RepositorioFilmeEmOrm repositorioFilme;
-
-    [TestInitialize]
-    public void ConfigurarTestes()
-    {
-        var assembly = typeof(RepositorioSessaoEmOrmTests).Assembly;
-
-        var configuracao = new ConfigurationBuilder()
-            .AddUserSecrets(assembly)
-            .Build();
-
-        var connectionString = configuracao["SQL_CONNECTION_STRING"];
-
-        var options = new DbContextOptionsBuilder<ControleDeCinemaDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-
-        dbContext = new ControleDeCinemaDbContext(options);
-        repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
-        repositorioSala = new RepositorioSalaEmOrm(dbContext);
-        repositorioFilme = new RepositorioFilmeEmOrm(dbContext);
-        repositorioGeneroFilme = new RepositorioGeneroFilmeEmOrm(dbContext);
-
-        BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGeneroFilme.Cadastrar);
-
-        dbContext.Database.EnsureDeleted();
-        dbContext.Database.EnsureCreated();
-    }
-
     [TestMethod]
     public void Deve_Cadastrar_Registro_Corretamente()
     {
@@ -93,11 +59,11 @@ public sealed class RepositorioSessaoEmOrmTests
         var sessao3 = new Sessao(DateTime.UtcNow, 55, filme, sala);
 
 
-        repositorioSessao.Cadastrar(sessao);
-        repositorioSessao.Cadastrar(sessao2);
-        repositorioSessao.Cadastrar(sessao3);
+        repositorioSessao?.Cadastrar(sessao);
+        repositorioSessao?.Cadastrar(sessao2);
+        repositorioSessao?.Cadastrar(sessao3);
 
-        dbContext.SaveChanges();
+        dbContext?.SaveChanges();
 
         List<Sessao> sessoesEsperadas = [sessao, sessao2, sessao3];
 
@@ -106,10 +72,10 @@ public sealed class RepositorioSessaoEmOrmTests
             .ToList();
 
         // Act
-        var sessoesRecebidas = repositorioSessao
+        var sessoesRecebidas = repositorioSessao?
             .SelecionarRegistros();
 
-        var sessoesRecebidasOrdenadas = sessoesRecebidas
+        var sessoesRecebidasOrdenadas = sessoesRecebidas?
             .OrderBy(s => s.NumeroMaximoIngressos)
             .ToList();
 
@@ -129,9 +95,9 @@ public sealed class RepositorioSessaoEmOrmTests
 
         //Arrange
         var sessao = new Sessao(DateTime.UtcNow, 43, filme, sala);
-        repositorioSessao.Cadastrar(sessao);
+        repositorioSessao?.Cadastrar(sessao);
 
-        dbContext.SaveChanges();
+        dbContext?.SaveChanges();
 
         var sessaoEditada = new Sessao(DateTime.UtcNow, 29, filme, sala);
 

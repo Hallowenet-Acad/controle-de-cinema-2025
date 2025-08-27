@@ -7,6 +7,7 @@ using ControleDeCinema.Infraestrutura.Orm.ModuloFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloGeneroFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSala;
 using ControleDeCinema.Infraestrutura.Orm.ModuloSessao;
+using ControleDeCinema.Testes.Integracao.Compartilhado;
 using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,44 +16,8 @@ namespace ControleDeCinema.Testes.Integracao.ModuloIngresso;
 
 [TestClass]
 [TestCategory("Testes de Integração de Ingresso")]
-public sealed class RepositorioIngressoEmOrmTests
+public sealed class RepositorioIngressoEmOrmTests : TestFixture
 {
-    private ControleDeCinemaDbContext dbContext;
-    private RepositorioIngressoEmOrm repositorioIngresso;
-    private RepositorioSessaoEmOrm repositorioSessao;
-    private RepositorioSalaEmOrm repositorioSala;
-    private RepositorioFilmeEmOrm repositorioFilme;
-    private RepositorioGeneroFilmeEmOrm repositorioGeneroFilme;
-
-    [TestInitialize]
-    public void ConfigurarTestes()
-    {
-        var assembly = typeof(RepositorioIngressoEmOrmTests).Assembly;
-
-        var configuracao = new ConfigurationBuilder()
-            .AddUserSecrets(assembly)
-            .Build();
-
-        var connectionString = configuracao["SQL_CONNECTION_STRING"];
-
-        var options = new DbContextOptionsBuilder<ControleDeCinemaDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-
-        dbContext = new ControleDeCinemaDbContext(options);
-        repositorioSala = new RepositorioSalaEmOrm(dbContext);
-        repositorioFilme = new RepositorioFilmeEmOrm(dbContext);
-        repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
-        repositorioGeneroFilme = new RepositorioGeneroFilmeEmOrm(dbContext);
-
-        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGeneroFilme.Cadastrar);
-
-        dbContext.Database.EnsureDeleted();
-        dbContext.Database.EnsureCreated();
-    }
     //[TestMethod]
     //public void Deve_Cadastrar_Registro_Corretamente()
     //{
