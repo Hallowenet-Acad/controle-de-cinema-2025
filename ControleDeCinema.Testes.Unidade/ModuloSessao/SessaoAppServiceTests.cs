@@ -23,7 +23,7 @@ public sealed class SessaoAppServiceTests
     private SessaoAppService? sessaoAppService;
 
     [TestInitialize]
-    public void ConfigurarTeste()
+    public void Setup()
     {
         tenantProviderMock = new Mock<ITenantProvider>();
         repositorioSessaoMock = new Mock<IRepositorioSessao>();

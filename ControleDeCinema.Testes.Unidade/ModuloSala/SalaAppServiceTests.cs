@@ -20,7 +20,7 @@ public class SalaAppServiceTests
     private SalaAppService? salaAppService;
 
     [TestInitialize]
-    public void ConfigurarTeste()
+    public void Setup()
     {
         tenantProviderMock = new Mock<ITenantProvider>();
         repositorioSalaMock = new Mock<IRepositorioSala>();
