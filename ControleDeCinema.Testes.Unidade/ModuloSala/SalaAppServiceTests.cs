@@ -108,4 +108,22 @@ public class SalaAppServiceTests
         Assert.IsNotNull(resultado);
         Assert.IsFalse(resultado.IsSuccess);
     }
+
+    [TestMethod]
+    public void Deve_Excluir_Registro_Com_Sucesso()
+    {
+        var sala = new Sala(1, 50);
+
+        repositorioSalaMock?
+            .Setup(r => r.SelecionarRegistros())
+            .Returns(new List<Sala> { sala });
+
+        var resultado = salaAppService!.Excluir(sala.Id);
+
+        repositorioSalaMock?.Verify(r => r.Excluir(sala.Id), Times.Once);
+        unitOfWorkMock?.Verify(u => u.Commit(), Times.Once);
+
+        Assert.IsNotNull(resultado);
+        Assert.IsTrue(resultado.IsSuccess);
+    }
 }
