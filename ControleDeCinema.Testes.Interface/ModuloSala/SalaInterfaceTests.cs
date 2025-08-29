@@ -97,6 +97,21 @@ public sealed class SalaInterfaceTests : TestFixture
         Assert.IsTrue(salaIndex.ContemSala("2") && salaIndex.ContemSala("1"));
     }
 
+    [TestMethod]
+    public void Deve_Retornar_Erro_Caso_Campo_Esteja_Vazio()
+    {
+        // Arrange
+        var salaIndex = new SalaIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        // Act
+        salaIndex
+            .ClickCadastrar()
+            .Confirmar();
+
+        // Assert
+        Assert.IsTrue(salaIndex.ChamouExcecaoDeNumero());
+    }
 }
 
 /* 
