@@ -35,7 +35,7 @@ public sealed class RepositorioIngressoEmOrmTests : TestFixture
     //    Ingresso ingresso = sessao.GerarIngresso(50, true);
     //    dbContext.SaveChanges();
 
-    //    var registroSelecionado = repositorioIngresso.SelecionarRegistros(ingresso.Id);
+    //    var registroSelecionado = repositorioIngresso?.SelecionarRegistros(ingresso.Id);
 
     //    Ingresso ingressoEncontrado = registroSelecionado.FirstOrDefault()!;
 
