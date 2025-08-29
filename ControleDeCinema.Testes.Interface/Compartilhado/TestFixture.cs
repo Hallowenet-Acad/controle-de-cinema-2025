@@ -93,7 +93,7 @@ public abstract class TestFixture
             .WithPassword("YourStrongPassword")
             .WithCleanUp(true)
             .WithWaitStrategy(Wait.ForUnixContainer()
-            .UntilPortIsAvailable(dbPort)
+                .UntilExternalTcpPortIsAvailable(dbPort)
             )
             .Build();
 
@@ -106,13 +106,13 @@ public abstract class TestFixture
     {
         //Configura a imagem à partir do Dockerfile
 
-        var imagem = new ImageFromDockerfileBuilder()
-            .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), string.Empty)
-            .WithDockerfile("Dockerfile")
-            .WithBuildArgument("RESOURCE_REAPER_SESSION_ID", ResourceReaper.DefaultSessionId.ToString("D"))
-            .WithName("controle-de-cinema-e2e:latest")
-            .Build();
-        await imagem.CreateAsync().ConfigureAwait(false);
+        //var imagem = new ImageFromDockerfileBuilder()
+        //    .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), string.Empty)
+        //    .WithDockerfile("Dockerfile")
+        //    .WithBuildArgument("RESOURCE_REAPER_SESSION_ID", ResourceReaper.DefaultSessionId.ToString("D"))
+        //    .WithName("controle-de-cinema-e2e:latest")
+        //    .Build();
+        //await imagem.CreateAsync().ConfigureAwait(false);
 
         //Configura o container da aplicação e inicializa enderecoBase
         var connectionStringRede = dbContainer?.GetConnectionString()
@@ -120,7 +120,7 @@ public abstract class TestFixture
             .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5433");
 
         appContainer = new ContainerBuilder()
-            .WithImage(imagem)
+            .WithImage("controledecinemawebapp")
             .WithPortBinding(appPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-webapp")
@@ -128,7 +128,7 @@ public abstract class TestFixture
             .WithEnvironment("SQL_CONNECTION_STRING", connectionStringRede)
             .WithEnvironment("NEWRELIC_LICENSE_KEY", configuracao?["NEWRELIC_LICENSE_KEY"])
             .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(appPort)
+                .UntilExternalTcpPortIsAvailable(appPort)
                 .UntilHttpRequestIsSucceeded(r => r.ForPort((ushort)appPort).ForPath("/health"))
             )
             .WithCleanUp(true)
@@ -149,7 +149,7 @@ public abstract class TestFixture
             .WithExtraHost("host.docker.internal", "host-gateway")
             .WithName("teste-facil-selenium-e2e")
             .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(seleniumPort)
+                .UntilExternalTcpPortIsAvailable(seleniumPort)
             )
             .Build();
 

@@ -13,50 +13,42 @@ public sealed class SalaInterfaceTests : TestFixture
     public void Deve_Cadastrar_Sala_Corretamente()
     {
 
-        //Arrange
-        driver?.Navigate().GoToUrl(Path.Combine(enderecoBase, "salas"));
+        // Arrange
+        var salaIndex = new SalaIndexPageObject(driver!)
+            .IrPara(enderecoBase!); 
 
-        var elemento = driver?.FindElement(By.CssSelector("a[data-se='btnCadastrar']"));
+        salaIndex
+            .ClickCadastrar()
+            .PreencherNumero("1")
+            .PreencherCapacidade("100")
+            .Confirmar();
 
-        elemento?.Click();
-
-        //Act
-        driver?.FindElement(By.Id("Numero")).SendKeys("2");
-        driver?.FindElement(By.Id("Capacidade")).SendKeys("4");
-
-        driver?.FindElement(By.CssSelector("button[type='submit']")).Click();
-
-        //Assert
-        var elementosCard = driver?.FindElements(By.CssSelector(".cards"));
-
-        Assert.AreEqual(1, elementosCard?.Count);
+        // Assert
+        Assert.IsTrue(salaIndex.ContemSala("1"));
     }
 
     [TestMethod]
     public void Deve_Editar_Sala_Corretamente()
     {
-        //Arrange
-        driver?.Navigate().GoToUrl(Path.Combine(enderecoBase, "salas"));
+        // Arrange
+        var salaIndex = new SalaIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
 
-        var elemento = driver?.FindElement(By.CssSelector("a[data-se='btnCadastrar']"));
+        salaIndex
+            .ClickCadastrar()
+            .PreencherNumero("1")
+            .PreencherCapacidade("100")
+            .Confirmar();
 
-        elemento?.Click();
+        // Act
+        salaIndex
+            .ClickEditar()
+            .PreencherNumero("2")
+            .PreencherCapacidade("50")
+            .Confirmar();
 
-        driver?.FindElement(By.Id("Numero")).SendKeys("2");
-        driver?.FindElement(By.Id("Capacidade")).SendKeys("4");
-
-        driver?.FindElement(By.CssSelector("button[type='submit']")).Click();
-
-        driver?.FindElement(By.CssSelector(".card"))
-            .FindElement(By.CssSelector("a[title='Edição']")).Click();
-
-        //Act
-        driver?.FindElement(By.Id("Numero")).SendKeys("5");
-        driver?.FindElement(By.Id("Capacidade")).SendKeys("10");
-
-        //Assert
-        Assert.IsTrue(driver?.PageSource.Contains("25"));
-
+        // Assert
+        Assert.IsTrue(salaIndex.ContemSala("2"));
     }
 }
 
