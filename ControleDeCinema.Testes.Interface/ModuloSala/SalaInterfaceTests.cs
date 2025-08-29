@@ -112,6 +112,25 @@ public sealed class SalaInterfaceTests : TestFixture
         // Assert
         Assert.IsTrue(salaIndex.ChamouExcecaoDeNumero());
     }
+
+    [TestMethod]
+    public void Deve_Retornar_Erro_Caso_Capacidade_For_Negativa()
+    {
+        // Arrange
+        var salaIndex = new SalaIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        salaIndex
+            .ClickCadastrar()
+            .PreencherNumero("1")
+            .PreencherCapacidade("-1")
+            .Confirmar();
+
+
+        // Assert
+        Assert.IsTrue(salaIndex.ChamouExcecaoDeNumero());
+    }
+
 }
 
 /* 
