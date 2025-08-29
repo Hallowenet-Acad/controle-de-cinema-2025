@@ -72,6 +72,31 @@ public sealed class SalaInterfaceTests : TestFixture
         // Assert
         Assert.IsFalse(salaIndex.ContemSala("# 1"));
     }
+
+    [TestMethod]
+    public void Deve_Listar_Salas_Corretamente()
+    {
+        // Arrange
+        var salaIndex = new SalaIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        // Act
+        salaIndex
+            .ClickCadastrar()
+            .PreencherNumero("1")
+            .PreencherCapacidade("100")
+            .Confirmar();
+
+        salaIndex
+          .ClickCadastrar()
+          .PreencherNumero("2")
+          .PreencherCapacidade("100")
+          .Confirmar();
+
+        // Assert
+        Assert.IsTrue(salaIndex.ContemSala("2") && salaIndex.ContemSala("1"));
+    }
+
 }
 
 /* 
