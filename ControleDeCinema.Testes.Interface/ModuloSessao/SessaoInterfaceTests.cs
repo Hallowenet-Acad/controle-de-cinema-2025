@@ -316,4 +316,70 @@ public sealed class SessaoInterfaceTests : TestFixture
         Assert.IsTrue(sessaoIndex.ContemErroSpan("NumeroMaximoIngressos"));
     }
 
+    [TestMethod]
+    public void Deve_Validar_Horario_Já_Existente_Sessao()
+    {
+        // Arrange
+        //var authIndex = new AutentificacaoIndexPageObject(driver!)
+        //    .IrParaLogin(enderecoBase!)
+        //    .ClickCriarConta()
+        //    .PreencherEmail("cinema@gmail.com")
+        //    .PreencherSenha("Senha12345")
+        //    .PreencherConfirmarSenha("Senha12345")
+        //    .SelecionarTipoUsuario("Empresa")
+        //    .Confirmar();
+
+        //var generoFilmeIndex = new GeneroFilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //generoFilmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherDescricao("Ficção Científica")
+        //    .Confirmar();
+
+        //var filmeIndex = new FilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //filmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherTitulo("Interestelar")
+        //    .PreencherDuracao(120)
+        //    .SelecionarGenero("Ação")
+        //    .Confirmar();
+
+        //var salaIndex = new SalaIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //salaIndex
+        //    .ClickCadastrar()
+        //    .PreencherNumeroSala(1)
+        //    .PreencherCapacidade(100)
+        //    .Confirmar();
+
+        var sessaoIndex = new SessaoIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        var horario = DateTime.Now.AddHours(5);
+
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario)
+            .PreencherNumeroMaximoIngressos(50)
+            .SelecionarFilme("Interestelar")
+            .SelecionarSala(1)
+            .Confirmar();
+
+        // Act
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario.AddHours(1))
+            .PreencherNumeroMaximoIngressos(50)
+            .SelecionarFilme("Interestelar")
+            .SelecionarSala(1)
+            .Confirmar();
+
+        // Assert
+        Assert.IsTrue(sessaoIndex.ContemErroAlert("Já existe uma sessão nesta sala que conflita com o horário informado."));
+    }
+
 }
