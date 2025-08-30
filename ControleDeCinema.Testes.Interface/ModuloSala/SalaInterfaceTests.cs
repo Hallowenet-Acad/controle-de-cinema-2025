@@ -156,29 +156,4 @@ public sealed class SalaInterfaceTests : TestFixture
     }
 }
 
-/* 
- 
-[TestClass]
-[TestCategory("Tests de Interface de Sessão")]
-public sealed class SessaoInterfaceTests : TestFixture
-{
-    [TestMethod]
-    public void Deve_Cadastrar_Sessao_Corretamente()
-    {
-        //Arrange
-        driver?.Navigate().GoToUrl(Path.Combine(enderecoBase, "salas", "cadastrar"));
 
-        driver?.FindElement(By.Id("Numero")).SendKeys("2");
-        driver?.FindElement(By.Id("Capacidade")).SendKeys("4");
-
-        driver?.FindElement(By.CssSelector("button[type='submit']")).Click();
-
-        driver?.Navigate().GoToUrl(Path.Combine(enderecoBase, "salas", "cadastrar"));
-
-        //Act
-        driver?.FindElement(By.Id("Numero")).SendKeys("2");
-
-
-        //Assert
-    }
- */
