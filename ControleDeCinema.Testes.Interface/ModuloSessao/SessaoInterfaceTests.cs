@@ -382,4 +382,79 @@ public sealed class SessaoInterfaceTests : TestFixture
         Assert.IsTrue(sessaoIndex.ContemErroAlert("Já existe uma sessão nesta sala que conflita com o horário informado."));
     }
 
+    [TestMethod]
+    public void Deve_Comprar_Ingresso_Sessao()
+    {
+        // Arrange
+        //var authIndex = new AutentificacaoIndexPageObject(driver!)
+        //    .IrParaLogin(enderecoBase!)
+        //    .ClickCriarConta()
+        //    .PreencherEmail("cinema@gmail.com")
+        //    .PreencherSenha("Senha12345")
+        //    .PreencherConfirmarSenha("Senha12345")
+        //    .SelecionarTipoUsuario("Empresa")
+        //    .Confirmar();
+
+        //var generoFilmeIndex = new GeneroFilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //generoFilmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherDescricao("Ação")
+        //    .Confirmar();
+
+        //var filmeIndex = new FilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //filmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherTitulo("John Wick")
+        //    .PreencherDuracao(120)
+        //    .SelecionarGenero("Ação")
+        //    .Confirmar();
+
+        //var salaIndex = new SalaIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //salaIndex
+        //    .ClickCadastrar()
+        //    .PreencherNumeroSala(1)
+        //    .PreencherCapacidade(2)
+        //    .Confirmar();
+
+        var sessaoIndex = new SessaoIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        var horario = DateTime.Now.AddHours(5);
+
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario)
+            .PreencherNumeroMaximoIngressos(2)
+            .SelecionarFilme("Interestelar")
+            .SelecionarSala(1)
+            .Confirmar();
+
+        // Act
+        //authIndex
+        //    .ClickUsuario()
+        //    .ClickLoggout();
+
+        //authIndex
+        //    .ClickCriarConta()
+        //    .PreencherEmail("cliente@gmail.com")
+        //    .PreencherSenha("Senha12345")
+        //    .PreencherConfirmarSenha("Senha12345")
+        //    .SelecionarTipoUsuario("Cliente")
+        //    .Confirmar();
+
+        sessaoIndex
+            .IrPara(enderecoBase!)
+            .ClickComprarIngresso()
+            .Confirmar();
+
+        // Assert
+        Assert.IsTrue(sessaoIndex.ContemIngresso("Interestelar"));
+    }
+
 }
