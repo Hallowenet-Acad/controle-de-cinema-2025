@@ -25,7 +25,7 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //generoFilmeIndex
         //    .ClickCadastrar()
-        //    .PreencherDescricao("Ação")
+        //    .PreencherDescricao("Ficção Científica")
         //    .Confirmar();
 
         //var filmeIndex = new FilmeIndexPageObject(driver!)
@@ -33,9 +33,9 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //filmeIndex
         //    .ClickCadastrar()
-        //    .PreencherTitulo("John Wick")
+        //    .PreencherTitulo("Interestelar")
         //    .PreencherDuracao(120)
-        //    .SelecionarGenero("Ação")
+        //    .SelecionarGenero("Ficção Científica")
         //    .Confirmar();
 
         //var salaIndex = new SalaIndexPageObject(driver!)
@@ -57,12 +57,12 @@ public sealed class SessaoInterfaceTests : TestFixture
             .ClickCadastrar()
             .PreencherDataHorarioInicio(horario)
             .PreencherNumeroMaximoIngressos(50)
-            .SelecionarFilme("John Wick")
+            .SelecionarFilme("Interestelar")
             .SelecionarSala(1)
             .Confirmar();
 
         // Assert
-        Assert.IsTrue(sessaoIndex.ContemSessao("John Wick", horario));
+        Assert.IsTrue(sessaoIndex.ContemSessao("Interestelar", horario));
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //generoFilmeIndex
         //    .ClickCadastrar()
-        //    .PreencherDescricao("Ação")
+        //    .PreencherDescricao("Ficção Científica")
         //    .Confirmar();
 
         //var filmeIndex = new FilmeIndexPageObject(driver!)
@@ -91,9 +91,9 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //filmeIndex
         //    .ClickCadastrar()
-        //    .PreencherTitulo("John Wick")
+        //    .PreencherTitulo("Interestelar")
         //    .PreencherDuracao(120)
-        //    .SelecionarGenero("Ação")
+        //    .SelecionarGenero("Ficção Científica")
         //    .Confirmar();
 
         //var salaIndex = new SalaIndexPageObject(driver!)
@@ -112,7 +112,7 @@ public sealed class SessaoInterfaceTests : TestFixture
             .ClickCadastrar()
             .PreencherDataHorarioInicio(DateTime.Now.AddHours(5))
             .PreencherNumeroMaximoIngressos(100)
-            .SelecionarFilme("John Wick")
+            .SelecionarFilme("Interestelar")
             .SelecionarSala(1)
             .Confirmar();
 
@@ -123,12 +123,12 @@ public sealed class SessaoInterfaceTests : TestFixture
             .ClickEditar()
             .PreencherDataHorarioInicio(horario)
             .PreencherNumeroMaximoIngressos(90)
-            .SelecionarFilme("John Wick")
+            .SelecionarFilme("Interestelar")
             .SelecionarSala(1)
             .Confirmar();
 
         // Assert
-        Assert.IsTrue(sessaoIndex.ContemSessao("John Wick", horario));
+        Assert.IsTrue(sessaoIndex.ContemSessao("Interestelar", horario));
     }
 
     [TestMethod]
@@ -149,7 +149,7 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //generoFilmeIndex
         //    .ClickCadastrar()
-        //    .PreencherDescricao("Ação")
+        //    .PreencherDescricao("Ficção Científica")
         //    .Confirmar();
 
         //var filmeIndex = new FilmeIndexPageObject(driver!)
@@ -157,7 +157,74 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         //filmeIndex
         //    .ClickCadastrar()
-        //    .PreencherTitulo("John Wick")
+        //    .PreencherTitulo("Interestelar")
+        //    .PreencherDuracao(120)
+        //    .SelecionarGenero("Ficção Científica")
+        //    .Confirmar();
+
+        //var salaIndex = new SalaIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //salaIndex
+        //    .ClickCadastrar()
+        //    .PreencherNumeroSala(1)
+        //    .PreencherCapacidade(100)
+        //    .Confirmar();
+
+        var sessaoIndex = new SessaoIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        var horario = DateTime.Now.AddHours(5);
+
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario)
+            .PreencherNumeroMaximoIngressos(50)
+            .SelecionarFilme("Interestelar")
+            .SelecionarSala(1)
+            .Confirmar();
+
+        // Act
+        sessaoIndex
+            .ClickEncerrar()
+            .Confirmar()
+            .IrPara(enderecoBase!);
+
+        sessaoIndex
+            .ClickExcluir()
+            .Confirmar();
+
+        // Assert
+        Assert.IsFalse(sessaoIndex.ContemSessao("Interestelar", horario));
+    }
+
+    [TestMethod]
+    public void Deve_Visualizar_Detalhes_Sessao()
+    {
+        // Arrange
+        //var authIndex = new AutentificacaoIndexPageObject(driver!)
+        //    .IrParaLogin(enderecoBase!)
+        //    .ClickCriarConta()
+        //    .PreencherEmail("cinema@gmail.com")
+        //    .PreencherSenha("Senha12345")
+        //    .PreencherConfirmarSenha("Senha12345")
+        //    .SelecionarTipoUsuario("Empresa")
+        //    .Confirmar();
+
+        //var generoFilmeIndex = new GeneroFilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //generoFilmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherDescricao("Ficção Científica")
+        //    .Confirmar();
+
+        //var filmeIndex = new FilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //filmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherTitulo("Interestelar")
         //    .PreencherDuracao(120)
         //    .SelecionarGenero("Ação")
         //    .Confirmar();
@@ -180,21 +247,15 @@ public sealed class SessaoInterfaceTests : TestFixture
             .ClickCadastrar()
             .PreencherDataHorarioInicio(horario)
             .PreencherNumeroMaximoIngressos(50)
-            .SelecionarFilme("John Wick")
+            .SelecionarFilme("Interestelar")
             .SelecionarSala(1)
             .Confirmar();
 
         // Act
         sessaoIndex
-            .ClickEncerrar()
-            .Confirmar()
-            .IrPara(enderecoBase!);
-
-        sessaoIndex
-            .ClickExcluir()
-            .Confirmar();
+            .ClickDetalhes();
 
         // Assert
-        Assert.IsFalse(sessaoIndex.ContemSessao("John Wick", horario));
+        Assert.IsTrue(sessaoIndex.ContemDetalhes("Interestelar", horario, 50));
     }
 }
