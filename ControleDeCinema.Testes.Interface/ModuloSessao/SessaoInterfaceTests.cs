@@ -541,4 +541,41 @@ public sealed class SessaoInterfaceTests : TestFixture
         // Assert
         Assert.IsTrue(sessaoIndex.ContemErroSpan("Assento"));
     }
+
+    [TestMethod]
+    public void Deve_Exibir_Contagem_Correta_De_Ingressos_Vendidos_Nos_Detalhes()
+    {
+        // Arrange
+        var sessaoIndex = new SessaoIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        var horario = DateTime.Now.AddHours(3);
+        var nomeFilme = "Duna"; 
+
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario)
+            .PreencherNumeroMaximoIngressos(10)
+            .SelecionarFilme(nomeFilme) 
+            .SelecionarSala(1)         
+            .Confirmar();
+
+        sessaoIndex
+            .ClickComprarIngressoPorFilme(nomeFilme) 
+            .Confirmar();
+
+        sessaoIndex
+            .IrPara(enderecoBase!) 
+            .ClickComprarIngressoPorFilme(nomeFilme)
+            .Confirmar();
+
+        // Act
+        sessaoIndex
+            .IrPara(enderecoBase!)
+            .ClickDetalhesPorFilme(nomeFilme); 
+
+
+        // Assert
+        Assert.IsTrue(sessaoIndex.ContemInformacaoDeIngressos("8 / 10"));
+    }
 }

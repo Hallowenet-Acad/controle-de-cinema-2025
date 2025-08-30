@@ -76,7 +76,7 @@ public class SessaoFormPageObject
 
         return this;
     }
-
+   
     public SessaoIndexPageObject Confirmar()
     {
         new Actions(driver).ScrollByAmount(0, 500).Perform();
