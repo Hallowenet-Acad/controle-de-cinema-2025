@@ -258,4 +258,62 @@ public sealed class SessaoInterfaceTests : TestFixture
         // Assert
         Assert.IsTrue(sessaoIndex.ContemDetalhes("Interestelar", horario, 50));
     }
+
+    [TestMethod]
+    public void Deve_Validar_Campos_Obrigatorios_Sessao()
+    {
+        // Arrange
+        //var authIndex = new AutentificacaoIndexPageObject(driver!)
+        //    .IrParaLogin(enderecoBase!)
+        //    .ClickCriarConta()
+        //    .PreencherEmail("cinema@gmail.com")
+        //    .PreencherSenha("Senha12345")
+        //    .PreencherConfirmarSenha("Senha12345")
+        //    .SelecionarTipoUsuario("Empresa")
+        //    .Confirmar();
+
+        //var generoFilmeIndex = new GeneroFilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //generoFilmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherDescricao("Ficção Científica")
+        //    .Confirmar();
+
+        //var filmeIndex = new FilmeIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //filmeIndex
+        //    .ClickCadastrar()
+        //    .PreencherTitulo("Interestelar")
+        //    .PreencherDuracao(120)
+        //    .SelecionarGenero("Ficção Científica")
+        //    .Confirmar();
+
+        //var salaIndex = new SalaIndexPageObject(driver!)
+        //    .IrPara(enderecoBase!);
+
+        //salaIndex
+        //    .ClickCadastrar()
+        //    .PreencherNumeroSala(1)
+        //    .PreencherCapacidade(100)
+        //    .Confirmar();
+
+        var sessaoIndex = new SessaoIndexPageObject(driver!)
+            .IrPara(enderecoBase!);
+
+        // Act
+        var horario = DateTime.Now.AddHours(5);
+
+        sessaoIndex
+            .ClickCadastrar()
+            .PreencherDataHorarioInicio(horario)
+            .SelecionarFilme("Interestelar")
+            .SelecionarSala(1)
+            .Confirmar();
+
+        // Assert
+        Assert.IsTrue(sessaoIndex.ContemErroSpan("NumeroMaximoIngressos"));
+    }
+
 }
