@@ -45,7 +45,7 @@ public abstract class TestFixture
     }
 
     [TestInitialize]
-    public void ConfigurarTestes()
+    public virtual void ConfigurarTestes()
     {
         if (container is null)
             throw new ArgumentNullException("O banco de dados não foi incializado.");
@@ -59,9 +59,8 @@ public abstract class TestFixture
         repositorioIngresso = new RepositorioIngressoEmOrm(dbContext);
         repositorioSala = new RepositorioSalaEmOrm(dbContext);
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
-
-        BuilderSetup.SetCreatePersistenceMethod<List<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
     }
+
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
     {
         dbContext.Database.EnsureCreated();
