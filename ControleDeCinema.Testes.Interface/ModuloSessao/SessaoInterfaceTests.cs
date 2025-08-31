@@ -1,6 +1,8 @@
-﻿using ControleDeCinema.Testes.Interface.ModuloSala;
+﻿using ControleDeCinema.Dominio.ModuloFilme;
+using ControleDeCinema.Dominio.ModuloSala;
+using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Testes.Interface.Compartilhado;
-
+using FizzWare.NBuilder;
 namespace ControleDeCinema.Testes.Interface.ModuloSessao;
 
 [TestClass]
@@ -577,5 +579,52 @@ public sealed class SessaoInterfaceTests : TestFixture
 
         // Assert
         Assert.IsTrue(sessaoIndex.ContemInformacaoDeIngressos("8 / 10"));
+    }
+
+    [TestMethod]
+    public void Deve_Exibir_Contagem_Correta_De_Sessoes_Por_Filme_Na_Lista()
+    {
+
+        var filmeDuna = Builder<Filme>.CreateNew()
+            .With(f => f.Titulo = "Duna: Parte 2")
+            .Build();
+
+        var filmeOppenheimer = Builder<Filme>.CreateNew()
+            .With(f => f.Titulo = "Oppenheimer")
+            .Build();
+
+        var sala = Builder<Sala>.CreateNew()
+            .With(s => s.Numero = 1)
+            .Build();
+
+        var sessoes = Builder<Sessao>.CreateListOfSize(3)
+            .TheFirst(1)
+                .With(s => s.Filme = filmeDuna)
+                .With(s => s.Sala = sala)
+                .With(s => s.Inicio = DateTime.Now.AddDays(1).Date.AddHours(18))
+
+            .TheNext(1)
+                .With(s => s.Filme = filmeDuna)
+                .With(s => s.Sala = sala)
+                .With(s => s.Inicio = DateTime.Now.AddDays(1).Date.AddHours(21))
+
+            .TheNext(1)
+                .With(s => s.Filme = filmeOppenheimer)
+                .With(s => s.Sala = sala)
+                .With(s => s.Inicio = DateTime.Now.AddDays(1).Date.AddHours(20))
+            .Build();
+
+        dbContext?.Filmes.Add(filmeDuna);
+        dbContext?.Filmes.Add(filmeOppenheimer);
+        dbContext?.Salas.Add(sala);
+        dbContext?.Sessoes.AddRange(sessoes);
+        dbContext?.SaveChanges();
+
+        var sessaoIndex = new SessaoIndexPageObject(driver!);
+
+        sessaoIndex.IrPara(enderecoBase!);
+
+        Assert.AreEqual(2, sessaoIndex.ContarCardsDeSessaoParaFilme(filmeDuna.Titulo));
+        Assert.AreEqual(1, sessaoIndex.ContarCardsDeSessaoParaFilme(filmeOppenheimer.Titulo));
     }
 }

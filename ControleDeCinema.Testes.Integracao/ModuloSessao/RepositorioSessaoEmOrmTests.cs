@@ -42,6 +42,7 @@ public sealed class RepositorioSessaoEmOrmTests : TestFixture
 
         Assert.AreEqual(sessao, registroSelecionado);
     }
+    
     [TestMethod]
     public void Deve_Selecionar_Registros_Corretamente()
     {
@@ -80,6 +81,7 @@ public sealed class RepositorioSessaoEmOrmTests : TestFixture
         // Assert
         CollectionAssert.AreEqual(sessoesEsperadasOrdenadas, sessoesRecebidas);
     }
+
     [TestMethod]
     public void Deve_Editar_Registros_Corretamente()
     {
@@ -109,6 +111,7 @@ public sealed class RepositorioSessaoEmOrmTests : TestFixture
         Assert.IsTrue(conseguiuEditar);
         Assert.AreEqual(sessao, registroSelecionado);
     }
+    
     [TestMethod]
     public void Deve_Excluir_Registros_Corretamente()
     {

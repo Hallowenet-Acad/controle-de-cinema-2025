@@ -111,7 +111,25 @@ namespace ControleDeCinema.Testes.Interface.ModuloSessao;
                 return driver.PageSource.Contains(contagemEsperada);
             }
         }
-    public bool ContemDetalhes(string sessao, DateTime horario, int ingressos)
+
+        public int ContarCardsDeSessaoParaFilme(string nomeFilme)
+        {
+            var seletor = By.XPath($"//div[contains(@class, 'card') and .//h5[contains(text(), 'Sessão para {nomeFilme}')]]");
+
+            try
+            {
+                // Espera um pouco para garantir que os cards carregaram
+                wait.Until(d => d.FindElement(By.CssSelector("[data-se='btnCadastrar']")).Displayed);
+
+                var cardsEncontrados = driver.FindElements(seletor);
+                return cardsEncontrados.Count;
+            }
+            catch (WebDriverTimeoutException)
+            {
+                return 0;
+            }
+        }
+        public bool ContemDetalhes(string sessao, DateTime horario, int ingressos)
         {
             wait.Until(d => d.PageSource.Contains("Detalhes da Sessão"));
 
