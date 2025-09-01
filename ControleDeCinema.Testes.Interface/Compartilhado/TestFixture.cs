@@ -19,10 +19,6 @@ public abstract class TestFixture
     protected const string emailEmpresa = "empresaTeste@gmail.com";
     protected const string senhaPadrao = "Teste123!";
 
-    protected const string emailCliente = "clienteTeste@gmail.com";
-    protected const string emailEmpresa = "empresaTeste@gmail.com";
-    protected const string senhaPadrao = "Teste123!";
-
     protected static string enderecoBase = "https://localhost:7131";
     private static string connectionString = "Host=localhost;Port=5432;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
 
