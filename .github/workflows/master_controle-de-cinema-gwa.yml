@@ -1,0 +1,113 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy ASP.Net Core app to Azure Web App - controle-de-cinema-gwa
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+    
+      - name: Run tests
+        run: dotnet test --configuration Release --verbosity normal
+        env:
+          ASPNET_ENVIRONMENT: "GITHUB_ACTIONS"
+          SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+          NEWRELIC_LICENSE_KEY: ${{ secrets.NEWRELIC_LICENSE_KEY }}
+
+  migrate:
+    runs-on: windows-latest
+    needs: [build, test]
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef
+  
+      - name: Apply EF Core migrations
+        run: dotnet ef database update --project ./ControleDeCinema.Infraestrutura.Orm --startup-project ./ControleDeCinema.WebApp
+        env:
+          ASPNET_ENVIRONMENT: "GITHUB_ACTIONS"
+          SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+          NEWRELIC_LICENSE_KEY: ${{ secrets.NEWRELIC_LICENSE_KEY }}
+
+  deploy:
+    runs-on: windows-latest
+    needs: [build, test, migrate]
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DC60678FB2A74447A43F14B78A861B09 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B1EA1DA6FC6E4798B6F84C00D38BBD60 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_098F79A73CC841368D550E10BBA2CF40 }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'controle-de-cinema-gwa'
+          slot-name: 'Production'
+          package: .
+
+          
+
