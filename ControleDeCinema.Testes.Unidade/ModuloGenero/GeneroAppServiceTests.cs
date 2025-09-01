@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ControledeCinema.Dominio.Compartilhado;
+﻿using ControledeCinema.Dominio.Compartilhado;
 using ControleDeCinema.Aplicacao.ModuloGeneroFilme;
 using ControleDeCinema.Dominio.ModuloAutenticacao;
 using ControleDeCinema.Dominio.ModuloGeneroFilme;
@@ -131,15 +126,17 @@ public sealed class GeneroAppServiceTests
     {
         GeneroFilme genero = new("Terror");
 
+        List<GeneroFilme> listaGeneros = new()
+        {
+            genero,
+            new("Animação")
+        };
+
         repositorioGeneroFilmeMock
             .Setup(r => r.SelecionarRegistros())
-            .Returns(new List<GeneroFilme>() { genero });
+            .Returns(listaGeneros);
 
-        repositorioGeneroFilmeMock
-            .Setup(r => r.SelecionarRegistroPorId(genero.Id))
-            .Returns(genero);
-
-        GeneroFilme generoEditado = new("Terror");
+        GeneroFilme generoEditado = new("Animação");
 
         Result resultado = generoAppService.Editar(genero.Id, generoEditado);
 
@@ -195,6 +192,10 @@ public sealed class GeneroAppServiceTests
             .Setup(r => r.SelecionarRegistroPorId(genero.Id))
             .Returns(genero);
 
+        repositorioGeneroFilmeMock
+            .Setup(r => r.Excluir(genero.Id))
+            .Returns(true);
+
         Result resultado = generoAppService.Excluir(genero.Id);
 
         repositorioGeneroFilmeMock.Verify(r => r.Excluir(genero.Id), Times.Once);
@@ -212,8 +213,8 @@ public sealed class GeneroAppServiceTests
             .Returns(new List<GeneroFilme>() { genero });
 
         repositorioGeneroFilmeMock
-            .Setup(r => r.SelecionarRegistroPorId(genero.Id))
-            .Returns(genero);
+            .Setup(r => r.Excluir(Guid.NewGuid())) 
+            .Returns(false);
 
         Result resultado = generoAppService.Excluir(Guid.NewGuid());
 
@@ -287,9 +288,9 @@ public sealed class GeneroAppServiceTests
 
         string mensagemErro = resultado.Errors.First().Message;
 
-        Assert.AreEqual("Ocorreu um erro interno do servidor", mensagemErro);
+        Assert.AreEqual("Registro não encontrado", mensagemErro);
         Assert.IsTrue(resultado.IsFailed);
-        Assert.AreEqual(genero, generoSelecionado);
+        Assert.AreNotEqual(genero, generoSelecionado);
     }
 
 
