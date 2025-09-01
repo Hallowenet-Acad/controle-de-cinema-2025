@@ -91,7 +91,10 @@ public class FilmeAppService
     {
         try
         {
-            repositorioFilme.Excluir(id);
+            bool exclusaoConcluida = repositorioFilme.Excluir(id);
+
+            if (exclusaoConcluida is false)
+                return Result.Fail(ResultadosErro.RegistroNaoEncontradoErro(id));
 
             unitOfWork.Commit();
 

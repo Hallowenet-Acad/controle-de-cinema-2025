@@ -48,7 +48,7 @@ public abstract class TestFixture
     }
 
     [TestInitialize]
-    public void ConfigurarTestes()
+    public virtual void ConfigurarTestes()
     {
         if (container is null)
             throw new ArgumentNullException("O banco de dados não foi incializado.");
@@ -64,6 +64,7 @@ public abstract class TestFixture
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
 
         BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
+<<<<<<< HEAD
         BuilderSetup.SetCreatePersistenceMethod<IList<Filme>>(repositorioFilme.CadastrarEntidades);
 
         BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
@@ -75,16 +76,29 @@ public abstract class TestFixture
         BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
         BuilderSetup.SetCreatePersistenceMethod<IList<Sessao>>(repositorioSessao.CadastrarEntidades);
 
+=======
+        BuilderSetup.SetCreatePersistenceMethod<List<Filme>>(repositorioFilme.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<Sala>>(repositorioSala.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<Sessao>>(repositorioSessao.CadastrarEntidades);
+>>>>>>> feature/ModulosRavi
     }
+
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
     {
         dbContext.Database.EnsureCreated();
 
-        dbContext.Filmes.RemoveRange();
-        dbContext.GenerosFilme.RemoveRange();
-        dbContext.Ingressos.RemoveRange();
-        dbContext.Salas.RemoveRange();
-        dbContext.Sessoes.RemoveRange();
+        dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
+        dbContext.Sessoes.RemoveRange(dbContext.Sessoes);
+        dbContext.Salas.RemoveRange(dbContext.Salas);
+        dbContext.Filmes.RemoveRange(dbContext.Filmes);
+        dbContext.GenerosFilme.RemoveRange(dbContext.GenerosFilme);
 
         dbContext.SaveChanges();
     }

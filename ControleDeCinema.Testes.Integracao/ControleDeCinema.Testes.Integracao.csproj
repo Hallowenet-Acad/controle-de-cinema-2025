@@ -5,7 +5,11 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+<<<<<<< HEAD
     <UserSecretsId>71c014cc-a58f-4b29-ad28-f241b76f80ab</UserSecretsId>
+=======
+    <UserSecretsId>601c28b6-bf33-4386-b274-310009ca09e0</UserSecretsId>
+>>>>>>> feature/ModulosRavi
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <ProjectReference Include="..\ControleDeCinema.Dominio\ControleDeCinema.Dominio.csproj" />
+=======
+>>>>>>> feature/ModulosRavi
     <ProjectReference Include="..\ControleDeCinema.Infraestrutura.Orm\ControleDeCinema.Infraestrutura.Orm.csproj" />
   </ItemGroup>
 

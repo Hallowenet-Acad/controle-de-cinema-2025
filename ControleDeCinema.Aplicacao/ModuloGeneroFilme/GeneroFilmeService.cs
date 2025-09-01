@@ -92,7 +92,10 @@ public class GeneroFilmeAppService
     {
         try
         {
-            repositorioGeneroFilme.Excluir(id);
+            bool exclusaoConcluida = repositorioGeneroFilme.Excluir(id);
+
+            if (exclusaoConcluida is false)
+                return Result.Fail(ResultadosErro.RegistroNaoEncontradoErro(id));
 
             unitOfWork.Commit();
 
