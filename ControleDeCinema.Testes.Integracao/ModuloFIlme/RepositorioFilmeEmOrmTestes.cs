@@ -62,7 +62,7 @@ public sealed class RepositorioFilmeEmOrmTestes : TestFixture
         repositorioFilme.Cadastrar(filme);
         dbContext.SaveChanges();
 
-        bool conseguiuExcluir = repositorioGenero.Excluir(genero.Id);
+        bool conseguiuExcluir = repositorioFilme.Excluir(filme.Id);
         dbContext.SaveChanges();
 
         Filme filmeSelecionado = repositorioFilme.SelecionarRegistroPorId(filme.Id);
