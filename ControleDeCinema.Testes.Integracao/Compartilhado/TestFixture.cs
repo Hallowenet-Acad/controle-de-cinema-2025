@@ -1,4 +1,7 @@
-﻿using ControleDeCinema.Dominio.ModuloGeneroFilme;
+﻿using ControleDeCinema.Dominio.ModuloFilme;
+using ControleDeCinema.Dominio.ModuloGeneroFilme;
+using ControleDeCinema.Dominio.ModuloSala;
+using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
 using ControleDeCinema.Infraestrutura.Orm.ModuloFilme;
 using ControleDeCinema.Infraestrutura.Orm.ModuloGeneroFilme;
@@ -59,17 +62,29 @@ public abstract class TestFixture
         repositorioIngresso = new RepositorioIngressoEmOrm(dbContext);
         repositorioSala = new RepositorioSalaEmOrm(dbContext);
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
+
+        BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<Filme>>(repositorioFilme.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<Sala>>(repositorioSala.CadastrarEntidades);
+
+        BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
+        BuilderSetup.SetCreatePersistenceMethod<List<Sessao>>(repositorioSessao.CadastrarEntidades);
     }
 
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
     {
         dbContext.Database.EnsureCreated();
 
-        dbContext.Filmes.RemoveRange();
-        dbContext.GenerosFilme.RemoveRange();
-        dbContext.Ingressos.RemoveRange();
-        dbContext.Salas.RemoveRange();
-        dbContext.Sessoes.RemoveRange();
+        dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
+        dbContext.Sessoes.RemoveRange(dbContext.Sessoes);
+        dbContext.Salas.RemoveRange(dbContext.Salas);
+        dbContext.Filmes.RemoveRange(dbContext.Filmes);
+        dbContext.GenerosFilme.RemoveRange(dbContext.GenerosFilme);
 
         dbContext.SaveChanges();
     }
