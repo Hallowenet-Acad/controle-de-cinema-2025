@@ -23,7 +23,7 @@ public abstract class TestFixture
     protected static string enderecoBase = "https://localhost:7131";
     private static string connectionString = "Host=localhost;Port=5432;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
 
-    private static IDatabaseContainer? dbContainer; 
+    private static IDatabaseContainer? dbContainer;
     private readonly static int dbPort = 5432;
 
     private static IContainer? appContainer;
@@ -43,22 +43,22 @@ public abstract class TestFixture
             .AddEnvironmentVariables()
             .Build();
 
-        var rede = new NetworkBuilder()
-            .WithName(Guid.NewGuid().ToString())
+        rede = new NetworkBuilder()
+            .WithName(Guid.NewGuid().ToString("D"))
             .WithCleanUp(true)
             .Build();
 
-        await InicializarBancoDadosAsyc(rede);
+        await InicializarBancoDadosAsyc();
 
-        await InicializarAplicacaoAsync(rede);
+        await InicializarAplicacaoAsync();
 
-        await InicializarWebDriverAsync(rede);
+        await InicializarWebDriverAsync();
     }
 
     [AssemblyCleanup]
     public static async Task EncerrarTestes()
     {
-        EncerrarWebDriverAsync();
+        await EncerrarWebDriverAsync();
 
         await EncerrarAplicacaoAsync();
 
@@ -89,15 +89,15 @@ public abstract class TestFixture
         dbContext.SaveChanges();
     }
 
-    private static async Task InicializarBancoDadosAsyc(DotNet.Testcontainers.Networks.INetwork rede)
+    private static async Task InicializarBancoDadosAsyc()
     {
         dbContainer = new PostgreSqlBuilder()
             .WithImage("postgres:16")
             .WithPortBinding(dbPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-e2e-testdb")
-            .WithName("controle-cinema-testdb")
-            .WithDatabase("AcademiaDoProgramadorDb")
+            .WithName("controle-de-cinema-e2e-testdb")
+            .WithDatabase("ControleDeCinemaDbTestes")
             .WithUsername("postgres")
             .WithPassword("YourStrongPassword")
             .WithCleanUp(true)
@@ -107,11 +107,9 @@ public abstract class TestFixture
             .Build();
 
         await dbContainer.StartAsync();
-
-        dbContainer.GetConnectionString();
     }
 
-    private static async Task InicializarAplicacaoAsync(DotNet.Testcontainers.Networks.INetwork rede)
+    private static async Task InicializarAplicacaoAsync()
     {
         //Configura a imagem à partir do Dockerfile
 
@@ -126,10 +124,10 @@ public abstract class TestFixture
         //Configura o container da aplicação e inicializa enderecoBase
         var connectionStringRede = dbContainer?.GetConnectionString()
             .Replace(dbContainer.Hostname, "controle-de-cinema-e2e-testdb")
-            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5433");
+            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5432");
 
         appContainer = new ContainerBuilder()
-            .WithImage("controledecinemawebapp")
+            .WithImage("controledecinemawebapp:latest")
             .WithPortBinding(appPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-webapp")
@@ -148,17 +146,18 @@ public abstract class TestFixture
         enderecoBase = $"http://{appContainer.Name}:{appPort}";
     }
 
-    private static async Task InicializarWebDriverAsync(DotNet.Testcontainers.Networks.INetwork rede)
+    private static async Task InicializarWebDriverAsync()
     {
         seleniumContainer = new ContainerBuilder()
             .WithImage("selenium/standalone-chrome:nightly")
             .WithPortBinding(seleniumPort, true)
             .WithNetwork(rede)
-            .WithNetworkAliases("teste-facil-selenium-e2e")
+            .WithNetworkAliases("controle-de-cinema-selenium-e2e")
             .WithExtraHost("host.docker.internal", "host-gateway")
-            .WithName("teste-facil-selenium-e2e")
+            .WithName("controle-de-cinema-selenium-e2e")
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilExternalTcpPortIsAvailable(seleniumPort)
+                .UntilInternalTcpPortIsAvailable(seleniumPort)
             )
             .Build();
 
@@ -167,6 +166,9 @@ public abstract class TestFixture
         var enderecoSelenium = new Uri($"http://{seleniumContainer.Hostname}:{seleniumContainer.GetMappedPublicPort(seleniumPort)}/wd/hub");
 
         var options = new ChromeOptions();
+        options.AddArgument("--window-size=1920,2000");
+        options.AddArgument("--disable-dev-shm-usage");
+        options.AddArgument("--no-sandbox");
         //options.AddArgument("-headless=new");
 
         driver = new RemoteWebDriver(enderecoSelenium, options);
