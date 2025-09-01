@@ -64,19 +64,6 @@ public abstract class TestFixture
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
 
         BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
-<<<<<<< HEAD
-        BuilderSetup.SetCreatePersistenceMethod<IList<Filme>>(repositorioFilme.CadastrarEntidades);
-
-        BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<IList<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
-
-        BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<IList<Sala>>(repositorioSala.CadastrarEntidades);
-
-        BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<IList<Sessao>>(repositorioSessao.CadastrarEntidades);
-
-=======
         BuilderSetup.SetCreatePersistenceMethod<List<Filme>>(repositorioFilme.CadastrarEntidades);
 
         BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
@@ -87,7 +74,6 @@ public abstract class TestFixture
 
         BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
         BuilderSetup.SetCreatePersistenceMethod<List<Sessao>>(repositorioSessao.CadastrarEntidades);
->>>>>>> feature/ModulosRavi
     }
 
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
@@ -105,7 +91,7 @@ public abstract class TestFixture
 
     private static async Task InicializarBancoDadosAsyc()
     {
-        await container.StartAsync();
+        await container!.StartAsync();
     }
 
     private static async Task EncerrarBancoDadosAsync()

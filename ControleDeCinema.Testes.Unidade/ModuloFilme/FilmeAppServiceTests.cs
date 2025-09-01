@@ -17,7 +17,7 @@ public sealed class FilmeAppServiceTests
     private Mock<ITenantProvider> tenantProviderMock;
     private Mock<IRepositorioFilme> repositorioFilmeMock;
     private Mock<IUnitOfWork> unitOfWorkMock;
-    private Mock<ILogger<FilmeAppService>> loggerMock;
+    private Mock<ILogger<FilmeAppService>>? loggerMock;
 
     private FilmeAppService filmeAppService;
 
