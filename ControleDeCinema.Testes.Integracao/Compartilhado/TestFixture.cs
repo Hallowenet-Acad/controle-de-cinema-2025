@@ -64,16 +64,16 @@ public abstract class TestFixture
         repositorioSessao = new RepositorioSessaoEmOrm(dbContext);
 
         BuilderSetup.SetCreatePersistenceMethod<Filme>(repositorioFilme.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<List<Filme>>(repositorioFilme.CadastrarEntidades);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Filme>>(repositorioFilme.CadastrarEntidades);
 
         BuilderSetup.SetCreatePersistenceMethod<GeneroFilme>(repositorioGenero.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<List<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
+        BuilderSetup.SetCreatePersistenceMethod<IList<GeneroFilme>>(repositorioGenero.CadastrarEntidades);
 
         BuilderSetup.SetCreatePersistenceMethod<Sala>(repositorioSala.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<List<Sala>>(repositorioSala.CadastrarEntidades);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Sala>>(repositorioSala.CadastrarEntidades);
 
         BuilderSetup.SetCreatePersistenceMethod<Sessao>(repositorioSessao.Cadastrar);
-        BuilderSetup.SetCreatePersistenceMethod<List<Sessao>>(repositorioSessao.CadastrarEntidades);
+        BuilderSetup.SetCreatePersistenceMethod<IList<Sessao>>(repositorioSessao.CadastrarEntidades);
     }
 
     private static void ConfigurarTabelas(ControleDeCinemaDbContext dbContext)
