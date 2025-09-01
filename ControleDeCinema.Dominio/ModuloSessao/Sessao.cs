@@ -10,7 +10,6 @@ public class Sessao : EntidadeBase<Sessao>
     public DateTime Inicio { get; set; }
     public int NumeroMaximoIngressos { get; set; }
     public bool Encerrada { get; private set; }
-
     public Filme Filme { get; set; }
     public Sala Sala { get; set; }
 

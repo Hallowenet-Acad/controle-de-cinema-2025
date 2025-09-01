@@ -1,11 +1,12 @@
 ﻿using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Support.UI;
+using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
 
 namespace ControleDeCinema.Testes.Interface.Compartilhado;
@@ -21,14 +22,14 @@ public abstract class TestFixture
     protected const string senhaPadrao = "Teste123!";
 
     protected static string enderecoBase = "https://localhost:7131";
-    private static string connectionString = "Host=localhost;Port=5432;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
+    private static string connectionString = "Host=localhost;Port=5433;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
 
     private static IDatabaseContainer? dbContainer;
-    private readonly static int dbPort = 5432;
+    private readonly static int dbPort = 5433;
 
     private static IContainer? appContainer;
     private readonly static int appPort = 8080;
-
+    
     private static IContainer? seleniumContainer;
     private readonly static int seleniumPort = 4444;
 
@@ -43,30 +44,30 @@ public abstract class TestFixture
             .AddEnvironmentVariables()
             .Build();
 
-        rede = new NetworkBuilder()
-            .WithName(Guid.NewGuid().ToString("D"))
+        var rede = new NetworkBuilder()
+            .WithName(Guid.NewGuid().ToString())
             .WithCleanUp(true)
             .Build();
 
-        await InicializarBancoDadosAsyc();
+        await InicializarBancoDadosAsyc(rede);
 
-        await InicializarAplicacaoAsync();
+        await InicializarAplicacaoAsync(rede);
 
-        await InicializarWebDriverAsync();
+        await InicializarWebDriverAsync(rede);
     }
 
     [AssemblyCleanup]
     public static async Task EncerrarTestes()
     {
-        await EncerrarWebDriverAsync();
+        EncerrarWebDriverAsync();
 
         await EncerrarAplicacaoAsync();
 
         await EncerrarBancoDadosAsyc();
     }
-
+    
     [TestInitialize]
-    public virtual void InicializarTeste()
+    public void InicializarTeste()
     {
         dbContext = ControleDeCinemaDbContextFactory.CriarDbContext(dbContainer.GetConnectionString());
 
@@ -78,6 +79,8 @@ public abstract class TestFixture
         dbContext.Database.EnsureCreated();
 
         dbContext.Salas.RemoveRange(dbContext.Salas);
+        dbContext.GenerosFilme.RemoveRange(dbContext.GenerosFilme);
+        dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
         dbContext.Sessoes.RemoveRange(dbContext.Sessoes);
         dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
         dbContext.Filmes.RemoveRange(dbContext.Filmes);
@@ -89,15 +92,15 @@ public abstract class TestFixture
         dbContext.SaveChanges();
     }
 
-    private static async Task InicializarBancoDadosAsyc()
+    private static async Task InicializarBancoDadosAsyc(DotNet.Testcontainers.Networks.INetwork rede)
     {
         dbContainer = new PostgreSqlBuilder()
             .WithImage("postgres:16")
             .WithPortBinding(dbPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-e2e-testdb")
-            .WithName("controle-de-cinema-e2e-testdb")
-            .WithDatabase("ControleDeCinemaDbTestes")
+            .WithName("controle-cinema-testdb")
+            .WithDatabase("AcademiaDoProgramadorDb")
             .WithUsername("postgres")
             .WithPassword("YourStrongPassword")
             .WithCleanUp(true)
@@ -107,9 +110,11 @@ public abstract class TestFixture
             .Build();
 
         await dbContainer.StartAsync();
+
+        dbContainer.GetConnectionString();
     }
 
-    private static async Task InicializarAplicacaoAsync()
+    private static async Task InicializarAplicacaoAsync(DotNet.Testcontainers.Networks.INetwork rede)
     {
         //Configura a imagem à partir do Dockerfile
 
@@ -124,10 +129,10 @@ public abstract class TestFixture
         //Configura o container da aplicação e inicializa enderecoBase
         var connectionStringRede = dbContainer?.GetConnectionString()
             .Replace(dbContainer.Hostname, "controle-de-cinema-e2e-testdb")
-            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5432");
+            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5433");
 
         appContainer = new ContainerBuilder()
-            .WithImage("controledecinemawebapp:latest")
+            .WithImage("controledecinemawebapp")
             .WithPortBinding(appPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-webapp")
@@ -145,16 +150,16 @@ public abstract class TestFixture
 
         enderecoBase = $"http://{appContainer.Name}:{appPort}";
     }
-
-    private static async Task InicializarWebDriverAsync()
+    
+    private static async Task InicializarWebDriverAsync(DotNet.Testcontainers.Networks.INetwork rede)
     {
         seleniumContainer = new ContainerBuilder()
             .WithImage("selenium/standalone-chrome:nightly")
             .WithPortBinding(seleniumPort, true)
             .WithNetwork(rede)
-            .WithNetworkAliases("controle-de-cinema-selenium-e2e")
+            .WithNetworkAliases("teste-facil-selenium-e2e")
             .WithExtraHost("host.docker.internal", "host-gateway")
-            .WithName("controle-de-cinema-selenium-e2e")
+            .WithName("teste-facil-selenium-e2e")
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilExternalTcpPortIsAvailable(seleniumPort)
                 .UntilInternalTcpPortIsAvailable(seleniumPort)
@@ -173,7 +178,7 @@ public abstract class TestFixture
 
         driver = new RemoteWebDriver(enderecoSelenium, options);
     }
-
+    
     private static async Task EncerrarBancoDadosAsyc()
     {
         if (dbContainer is not null)

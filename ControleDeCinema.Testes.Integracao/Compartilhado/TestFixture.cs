@@ -91,7 +91,7 @@ public abstract class TestFixture
 
     private static async Task InicializarBancoDadosAsyc()
     {
-        await container.StartAsync();
+        await container!.StartAsync();
     }
 
     private static async Task EncerrarBancoDadosAsync()
