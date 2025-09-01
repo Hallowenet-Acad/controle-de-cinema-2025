@@ -204,11 +204,11 @@ public sealed class FilmeAppServiceTests
             .Returns(new List<Filme>() { filme });
 
         repositorioFilmeMock
-            .Setup(r => r.SelecionarRegistroPorId(genero.Id))
+            .Setup(r => r.SelecionarRegistroPorId(filme.Id))
             .Returns(filme);
 
         repositorioFilmeMock
-            .Setup(r => r.Excluir(genero.Id))
+            .Setup(r => r.Excluir(filme.Id))
             .Returns(true);
 
         Result resultado = filmeAppService.Excluir(filme.Id);
