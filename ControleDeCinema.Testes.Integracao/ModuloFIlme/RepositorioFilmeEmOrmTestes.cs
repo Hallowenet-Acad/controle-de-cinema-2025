@@ -86,7 +86,6 @@ public sealed class RepositorioFilmeEmOrmTestes : TestFixture
     [TestMethod]
     public void Deve_Selecionar_Filme_Corretamente()
     {
-
         List<GeneroFilme> novosGeneros = Builder<GeneroFilme>.CreateListOfSize(3)
             .All().With(g => g.Id = Guid.NewGuid()).Persist().ToList();
 

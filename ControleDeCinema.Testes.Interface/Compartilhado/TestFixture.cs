@@ -1,13 +1,11 @@
 ﻿using ControleDeCinema.Infraestrutura.Orm.Compartilhado;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
-using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
 
 namespace ControleDeCinema.Testes.Interface.Compartilhado;
@@ -21,19 +19,24 @@ public abstract class TestFixture
     protected const string emailEmpresa = "empresaTeste@gmail.com";
     protected const string senhaPadrao = "Teste123!";
 
+    protected const string emailCliente = "clienteTeste@gmail.com";
+    protected const string emailEmpresa = "empresaTeste@gmail.com";
+    protected const string senhaPadrao = "Teste123!";
+
     protected static string enderecoBase = "https://localhost:7131";
-    private static string connectionString = "Host=localhost;Port=5433;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
+    private static string connectionString = "Host=localhost;Port=5432;Database=ControleDeCinemaDb;Username=postgres;Password=YourStrongPassword";
 
     private static IDatabaseContainer? dbContainer;
-    private readonly static int dbPort = 5433;
+    private readonly static int dbPort = 5432;
 
     private static IContainer? appContainer;
     private readonly static int appPort = 8080;
-    
+
     private static IContainer? seleniumContainer;
     private readonly static int seleniumPort = 4444;
 
     private static IConfiguration? configuracao;
+    private static DotNet.Testcontainers.Networks.INetwork rede;
 
     [AssemblyInitialize]
     public static async Task ConfigurarTestes(TestContext _)
@@ -43,28 +46,28 @@ public abstract class TestFixture
             .AddEnvironmentVariables()
             .Build();
 
-        var rede = new NetworkBuilder()
-            .WithName(Guid.NewGuid().ToString())
+        rede = new NetworkBuilder()
+            .WithName(Guid.NewGuid().ToString("D"))
             .WithCleanUp(true)
             .Build();
 
-        await InicializarBancoDadosAsyc(rede);
+        await InicializarBancoDadosAsyc();
 
-        await InicializarAplicacaoAsync(rede);
+        await InicializarAplicacaoAsync();
 
-        await InicializarWebDriverAsync(rede);
+        await InicializarWebDriverAsync();
     }
 
     [AssemblyCleanup]
     public static async Task EncerrarTestes()
     {
-        EncerrarWebDriverAsync();
+        await EncerrarWebDriverAsync();
 
         await EncerrarAplicacaoAsync();
 
         await EncerrarBancoDadosAsyc();
     }
-    
+
     [TestInitialize]
     public virtual void InicializarTeste()
     {
@@ -78,23 +81,26 @@ public abstract class TestFixture
         dbContext.Database.EnsureCreated();
 
         dbContext.Salas.RemoveRange(dbContext.Salas);
-        dbContext.GenerosFilme.RemoveRange(dbContext.GenerosFilme);
-        dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
         dbContext.Sessoes.RemoveRange(dbContext.Sessoes);
+        dbContext.Ingressos.RemoveRange(dbContext.Ingressos);
         dbContext.Filmes.RemoveRange(dbContext.Filmes);
+        dbContext.GenerosFilme.RemoveRange(dbContext.GenerosFilme);
+
+        dbContext.UserRoles.RemoveRange(dbContext.UserRoles);
+        dbContext.Users.RemoveRange(dbContext.Users);
 
         dbContext.SaveChanges();
     }
 
-    private static async Task InicializarBancoDadosAsyc(DotNet.Testcontainers.Networks.INetwork rede)
+    private static async Task InicializarBancoDadosAsyc()
     {
         dbContainer = new PostgreSqlBuilder()
             .WithImage("postgres:16")
             .WithPortBinding(dbPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-e2e-testdb")
-            .WithName("controle-cinema-testdb")
-            .WithDatabase("AcademiaDoProgramadorDb")
+            .WithName("controle-de-cinema-e2e-testdb")
+            .WithDatabase("ControleDeCinemaDbTestes")
             .WithUsername("postgres")
             .WithPassword("YourStrongPassword")
             .WithCleanUp(true)
@@ -104,11 +110,9 @@ public abstract class TestFixture
             .Build();
 
         await dbContainer.StartAsync();
-
-        dbContainer.GetConnectionString();
     }
 
-    private static async Task InicializarAplicacaoAsync(DotNet.Testcontainers.Networks.INetwork rede)
+    private static async Task InicializarAplicacaoAsync()
     {
         //Configura a imagem à partir do Dockerfile
 
@@ -123,10 +127,10 @@ public abstract class TestFixture
         //Configura o container da aplicação e inicializa enderecoBase
         var connectionStringRede = dbContainer?.GetConnectionString()
             .Replace(dbContainer.Hostname, "controle-de-cinema-e2e-testdb")
-            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5433");
+            .Replace(dbContainer.GetMappedPublicPort(dbPort).ToString(), "5432");
 
         appContainer = new ContainerBuilder()
-            .WithImage("controledecinemawebapp")
+            .WithImage("controledecinemawebapp:latest")
             .WithPortBinding(appPort, true)
             .WithNetwork(rede)
             .WithNetworkAliases("controle-de-cinema-webapp")
@@ -144,18 +148,19 @@ public abstract class TestFixture
 
         enderecoBase = $"http://{appContainer.Name}:{appPort}";
     }
-    
-    private static async Task InicializarWebDriverAsync(DotNet.Testcontainers.Networks.INetwork rede)
+
+    private static async Task InicializarWebDriverAsync()
     {
         seleniumContainer = new ContainerBuilder()
             .WithImage("selenium/standalone-chrome:nightly")
             .WithPortBinding(seleniumPort, true)
             .WithNetwork(rede)
-            .WithNetworkAliases("teste-facil-selenium-e2e")
+            .WithNetworkAliases("controle-de-cinema-selenium-e2e")
             .WithExtraHost("host.docker.internal", "host-gateway")
-            .WithName("teste-facil-selenium-e2e")
+            .WithName("controle-de-cinema-selenium-e2e")
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilExternalTcpPortIsAvailable(seleniumPort)
+                .UntilInternalTcpPortIsAvailable(seleniumPort)
             )
             .Build();
 
@@ -164,11 +169,14 @@ public abstract class TestFixture
         var enderecoSelenium = new Uri($"http://{seleniumContainer.Hostname}:{seleniumContainer.GetMappedPublicPort(seleniumPort)}/wd/hub");
 
         var options = new ChromeOptions();
+        options.AddArgument("--window-size=1920,2000");
+        options.AddArgument("--disable-dev-shm-usage");
+        options.AddArgument("--no-sandbox");
         //options.AddArgument("-headless=new");
 
         driver = new RemoteWebDriver(enderecoSelenium, options);
     }
-    
+
     private static async Task EncerrarBancoDadosAsyc()
     {
         if (dbContainer is not null)
@@ -190,44 +198,6 @@ public abstract class TestFixture
             await seleniumContainer.DisposeAsync();
     }
 
-    protected static void RegistrarContaCliente()
-    {
-        driver.Navigate().GoToUrl($"{enderecoBase}/autenticacao/registro");
-
-        IWebElement inputEmail = driver.FindElement(By.CssSelector("input[data-se='inputEmail']"));
-        IWebElement inputSenha = driver.FindElement(By.CssSelector("input[data-se='inputSenha']"));
-        IWebElement inputConfirmarSenha = driver.FindElement(By.CssSelector("input[data-se='inputConfirmarSenha']"));
-        SelectElement selectTipoUsuario = new(driver.FindElement(By.CssSelector("select[data-se='selectTipoUsuario']")));
-
-        inputEmail.Clear();
-        inputEmail.SendKeys(emailCliente);
-
-        inputSenha.Clear();
-        inputSenha.SendKeys(senhaPadrao);
-
-        inputConfirmarSenha.Clear();
-        inputConfirmarSenha.SendKeys(senhaPadrao);
-
-        selectTipoUsuario.SelectByText("Cliente");
-
-        WebDriverWait wait = new(driver, TimeSpan.FromSeconds(20));
-
-        wait.Until(d =>
-        {
-            IWebElement btn = d.FindElement(By.CssSelector("button[data-se='btnConfirmar']"));
-            if (!btn.Enabled || !btn.Displayed) return false;
-            btn.Click();
-            return true;
-        });
-
-        wait.Until(d =>
-            !d.Url.Contains("/autenticacao/registro", StringComparison.OrdinalIgnoreCase) &&
-            d.FindElements(By.CssSelector("form[action='/autenticacao/registro']")).Count == 0
-        );
-
-        wait.Until(d => d.FindElements(By.CssSelector("form[action='/autenticacao/logout']")).Count > 0);
-    }
-
     protected static void RegistrarContaEmpresarial()
     {
         driver.Navigate().GoToUrl($"{enderecoBase}/autenticacao/registro");
@@ -247,6 +217,44 @@ public abstract class TestFixture
         inputConfirmarSenha.SendKeys(senhaPadrao);
 
         selectTipoUsuario.SelectByText("Empresa");
+
+        WebDriverWait wait = new(driver, TimeSpan.FromSeconds(20));
+
+        wait.Until(d =>
+        {
+            IWebElement btn = d.FindElement(By.CssSelector("button[data-se='btnConfirmar']"));
+            if (!btn.Enabled || !btn.Displayed) return false;
+            btn.Click();
+            return true;
+        });
+
+        wait.Until(d =>
+            !d.Url.Contains("/autenticacao/registro", StringComparison.OrdinalIgnoreCase) &&
+            d.FindElements(By.CssSelector("form[action='/autenticacao/registro']")).Count == 0
+        );
+
+        wait.Until(d => d.FindElements(By.CssSelector("form[action='/autenticacao/logout']")).Count > 0);
+    }
+
+    protected static void RegistrarContaCliente()
+    {
+        driver.Navigate().GoToUrl($"{enderecoBase}/autenticacao/registro");
+
+        IWebElement inputEmail = driver.FindElement(By.CssSelector("input[data-se='inputEmail']"));
+        IWebElement inputSenha = driver.FindElement(By.CssSelector("input[data-se='inputSenha']"));
+        IWebElement inputConfirmarSenha = driver.FindElement(By.CssSelector("input[data-se='inputConfirmarSenha']"));
+        SelectElement selectTipoUsuario = new(driver.FindElement(By.CssSelector("select[data-se='selectTipoUsuario']")));
+
+        inputEmail.Clear();
+        inputEmail.SendKeys(emailCliente);
+
+        inputSenha.Clear();
+        inputSenha.SendKeys(senhaPadrao);
+
+        inputConfirmarSenha.Clear();
+        inputConfirmarSenha.SendKeys(senhaPadrao);
+
+        selectTipoUsuario.SelectByText("Cliente");
 
         WebDriverWait wait = new(driver, TimeSpan.FromSeconds(20));
 
@@ -300,6 +308,7 @@ public abstract class TestFixture
 
         wait.Until(d => d.FindElements(By.CssSelector("form[action='/autenticacao/logout']")).Count > 0);
     }
+
     protected static void FazerLogout()
     {
         driver.Navigate().GoToUrl($"{enderecoBase}");

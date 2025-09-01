@@ -4,7 +4,7 @@ using ControleDeCinema.Testes.Integracao.Compartilhado;
 namespace ControleDeCinema.Testes.Integracao.ModuloGenero;
 
 [TestClass]
-[TestCategory("Testes de Integração de Genêro")]
+[TestCategory("Testes de Integração de Gênero")]
 public sealed class RepositorioGeneroEmOrmTests : TestFixture
 {
     [TestMethod]
