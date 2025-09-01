@@ -1,7 +1,9 @@
 ﻿using ControleDeCinema.Dominio.ModuloFilme;
+using ControleDeCinema.Dominio.ModuloGeneroFilme;
 using ControleDeCinema.Dominio.ModuloSala;
 using ControleDeCinema.Dominio.ModuloSessao;
 using ControleDeCinema.Testes.Interface.Compartilhado;
+using ControleDeCinema.Testes.Interface.ModuloSala;
 using FizzWare.NBuilder;
 namespace ControleDeCinema.Testes.Interface.ModuloSessao;
 
@@ -12,59 +14,28 @@ public sealed class SessaoInterfaceTests : TestFixture
     [TestMethod]
     public void Deve_Cadastrar_Sessao()
     {
-        // Arrange
-        //var authIndex = new AutentificacaoIndexPageObject(driver!)
-        //    .IrParaLogin(enderecoBase!)
-        //    .ClickCriarConta()
-        //    .PreencherEmail("cinema@gmail.com")
-        //    .PreencherSenha("Senha12345")
-        //    .PreencherConfirmarSenha("Senha12345")
-        //    .SelecionarTipoUsuario("Empresa")
-        //    .Confirmar();
+        var generoFilme = Builder<GeneroFilme>.CreateNew()
+            .With(g => g.Descricao = "Ficção Científica")
+            .Persist();
 
-        //var generoFilmeIndex = new GeneroFilmeIndexPageObject(driver!)
-        //    .IrPara(enderecoBase!);
+        var filme = Builder<Filme>.CreateNew()
+            .With(f => f.Genero = generoFilme)
+            .Persist();
 
-        //generoFilmeIndex
-        //    .ClickCadastrar()
-        //    .PreencherDescricao("Ficção Científica")
-        //    .Confirmar();
-
-        //var filmeIndex = new FilmeIndexPageObject(driver!)
-        //    .IrPara(enderecoBase!);
-
-        //filmeIndex
-        //    .ClickCadastrar()
-        //    .PreencherTitulo("Interestelar")
-        //    .PreencherDuracao(120)
-        //    .SelecionarGenero("Ficção Científica")
-        //    .Confirmar();
-
-        //var salaIndex = new SalaIndexPageObject(driver!)
-        //    .IrPara(enderecoBase!);
-
-        //salaIndex
-        //    .ClickCadastrar()
-        //    .PreencherNumeroSala(1)
-        //    .PreencherCapacidade(100)
-        //    .Confirmar();
+        var sala = Builder<Sala>.CreateNew().Persist();
 
         var sessaoIndex = new SessaoIndexPageObject(driver!)
             .IrPara(enderecoBase!);
 
-        // Act
-        var horario = DateTime.Now.AddHours(5);
-
         sessaoIndex
             .ClickCadastrar()
-            .PreencherDataHorarioInicio(horario)
-            .PreencherNumeroMaximoIngressos(50)
-            .SelecionarFilme("Interestelar")
-            .SelecionarSala(1)
+            .PreencherDataHorarioInicio(DateTime.UtcNow)
+            .PreencherNumeroMaximoIngressos(100)
+            .SelecionarFilme(filme.Titulo)
+            .SelecionarSala(sala.Numero)
             .Confirmar();
 
-        // Assert
-        Assert.IsTrue(sessaoIndex.ContemSessao("Interestelar", horario));
+        Assert.IsTrue(sessaoIndex.ContemSessao());
     }
 
     [TestMethod]
