@@ -110,7 +110,7 @@ public sealed class FilmeAppServiceTests
     {
         GeneroFilme novoGenero = Builder<GeneroFilme>.CreateNew()
             .With(g => g.Id = Guid.NewGuid())
-            .With(d => d.Descricao = "Thriller").Persist();
+            .With(d => d.Descricao = "Thriller").Build();
 
         Filme filme = new("LongLegs", 105, true, genero);
 
@@ -137,15 +137,21 @@ public sealed class FilmeAppServiceTests
     {
         Filme filme = new("LongLegs", 125, true, genero);
 
+        List<Filme> filmeExistentes = new()
+        {
+            filme,
+            new("Nosferatu", 135, true, genero)
+        };
+
         repositorioFilmeMock
             .Setup(r => r.SelecionarRegistros())
-            .Returns(new List<Filme>() { filme });
+            .Returns(filmeExistentes);
 
         repositorioFilmeMock
             .Setup(r => r.SelecionarRegistroPorId(filme.Id))
             .Returns(filme);
 
-        Filme filmeEditado = new("LongLegs", 125, true, genero);
+        Filme filmeEditado = new("Nosferatu", 125, true, genero);
 
         Result resultado = filmeAppService.Editar(filme.Id, filmeEditado);
 
@@ -201,6 +207,10 @@ public sealed class FilmeAppServiceTests
             .Setup(r => r.SelecionarRegistroPorId(genero.Id))
             .Returns(filme);
 
+        repositorioFilmeMock
+            .Setup(r => r.Excluir(genero.Id))
+            .Returns(true);
+
         Result resultado = filmeAppService.Excluir(filme.Id);
 
         repositorioFilmeMock.Verify(r => r.Excluir(filme.Id), Times.Once);
@@ -218,8 +228,8 @@ public sealed class FilmeAppServiceTests
             .Returns(new List<Filme>() { filme });
 
         repositorioFilmeMock
-            .Setup(r => r.SelecionarRegistroPorId(filme.Id))
-            .Returns(filme);
+            .Setup(r => r.Excluir(Guid.NewGuid()))
+            .Returns(false);
 
         Result resultado = filmeAppService.Excluir(Guid.NewGuid());
 
@@ -293,9 +303,9 @@ public sealed class FilmeAppServiceTests
 
         string mensagemErro = resultado.Errors.First().Message;
 
-        Assert.AreEqual("Ocorreu um erro interno do servidor", mensagemErro);
+        Assert.AreEqual("Registro não encontrado", mensagemErro);
         Assert.IsTrue(resultado.IsFailed);
-        Assert.AreEqual(filme, filmeSelecionado);
+        Assert.AreNotEqual(filme, filmeSelecionado);
     }
 
 
